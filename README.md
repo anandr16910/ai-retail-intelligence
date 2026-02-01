@@ -1,0 +1,731 @@
+# AI for Retail, Commerce & Market Intelligence Platform
+
+A comprehensive AI-powered platform for market intelligence, demand forecasting, and pricing optimization, specifically designed for precious metals (gold/silver coins) and popular Indian ETFs. Built for the AI for Bharat Hackathon.
+
+## 🚀 Features
+
+### Core Capabilities
+- **Price Trend Forecasting**: ML-based prediction for gold, silver, and ETF prices
+- **Intelligent Pricing Engine**: Market analysis and pricing recommendations
+- **Document Intelligence**: LLM-powered financial document analysis
+- **Market Copilot**: AI assistant for natural language market queries
+- **Real-time API**: FastAPI-based REST endpoints for integration
+
+### Key Components
+- **Data Pipeline**: Automated CSV data loading and preprocessing
+- **ML Models**: Multiple forecasting algorithms (Moving Average, Random Forest)
+- **Pricing Strategies**: Conservative, balanced, and aggressive pricing approaches
+- **Document Parser**: Extract insights from financial reports and market analysis
+- **Conversational AI**: Natural language interface for market intelligence
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Client Applications                       │
+├─────────────────────────────────────────────────────────────┤
+│                     FastAPI Gateway                         │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
+│  │ Forecasting │   Pricing   │  Document   │   Market    │  │
+│  │ Endpoints   │ Endpoints   │ Endpoints   │  Copilot    │  │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                    Service Layer                            │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
+│  │Forecasting  │   Pricing   │  Document   │   Market    │  │
+│  │   Engine    │   Engine    │   Parser    │  Copilot    │  │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                     Model Layer                             │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
+│  │   Moving    │   Random    │     LLM     │   Query     │  │
+│  │  Average    │   Forest    │  Service    │ Processor   │  │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                     Data Layer                              │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
+│  │    Data     │    CSV      │   Model     │    Logs     │  │
+│  │   Loader    │   Files     │  Storage    │             │  │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📁 Repository Structure
+
+```
+ai-retail-intelligence/
+├── data/                          # Sample datasets
+│   ├── gold_prices.csv           # Historical gold price data
+│   ├── silver_prices.csv         # Historical silver price data
+│   └── etf_prices.csv            # Indian ETF price data
+├── src/                          # Source code
+│   ├── __init__.py
+│   ├── config.py                 # Configuration management
+│   ├── exceptions.py             # Custom exceptions
+│   ├── logger.py                 # Logging setup
+│   ├── data_loader.py            # Data loading and preprocessing
+│   ├── data_generator.py         # Sample data generation
+│   ├── forecasting_model.py      # ML forecasting models
+│   ├── pricing_engine.py         # Pricing intelligence
+│   ├── document_parser.py        # LLM-based document analysis
+│   ├── market_copilot.py         # AI assistant
+│   └── api.py                    # FastAPI endpoints
+├── models/                       # Trained ML models
+├── logs/                         # Application logs
+├── tests/                        # Test files
+├── main.py                       # Main application entry point
+├── requirements.txt              # Python dependencies
+├── .env.example                  # Environment configuration template
+└── README.md                     # This file
+```
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+- Python 3.8 or higher
+- pip (Python package manager)
+
+### Step 1: Clone Repository
+```bash
+git clone <repository-url>
+cd ai-retail-intelligence
+```
+
+### Step 2: Create Virtual Environment (Recommended)
+```bash
+python -m venv venv
+
+# On Windows
+venv\Scripts\activate
+
+# On macOS/Linux
+source venv/bin/activate
+```
+
+### Step 3: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Step 4: Environment Configuration
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env file with your settings (optional)
+# Default settings work for local development
+```
+
+### Step 5: Generate Sample Data (if needed)
+```bash
+python src/data_generator.py
+```
+
+## 🚀 Quick Start
+
+### Option 1: Run Interactive Demo
+```bash
+python main.py --mode demo
+```
+
+### Option 2: Start API Server
+```bash
+python main.py --mode server
+```
+
+### Option 3: Check System Status
+```bash
+python main.py --mode status
+```
+
+### Option 4: Development Server (with auto-reload)
+```bash
+python main.py --mode server --reload
+```
+
+## 📚 API Documentation
+
+Once the server is running, access the interactive API documentation:
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **OpenAPI Schema**: http://localhost:8000/openapi.json
+
+### Key API Endpoints
+
+#### Price Forecasting
+```http
+POST /api/v1/forecast/{asset}
+Content-Type: application/json
+
+{
+  "symbol": "GOLD",
+  "horizon": 30,
+  "model_name": "moving_average"
+}
+```
+
+#### Pricing Recommendations
+```http
+POST /api/v1/pricing/recommend
+Content-Type: application/json
+
+{
+  "symbol": "GOLD",
+  "current_price": 1850.00,
+  "strategy_type": "balanced"
+}
+```
+
+#### Document Analysis
+```http
+POST /api/v1/documents/parse
+Content-Type: application/json
+
+{
+  "content": "Gold prices have risen 15% this quarter...",
+  "document_id": "market_report_q4"
+}
+```
+
+#### Market Copilot
+```http
+POST /api/v1/copilot/query
+Content-Type: application/json
+
+{
+  "query": "What is the current gold price trend?",
+  "context": {}
+}
+```
+
+### Example API Responses
+
+#### Forecast Response
+```json
+{
+  "success": true,
+  "message": "Forecast generated for gold",
+  "data": {
+    "symbol": "GOLD",
+    "forecast_horizon": 7,
+    "predicted_prices": [1852.30, 1855.10, 1858.75, ...],
+    "confidence_intervals": {
+      "lower": [1760.69, 1762.35, ...],
+      "upper": [1943.91, 1947.85, ...]
+    },
+    "model_metrics": {
+      "accuracy": 0.85
+    },
+    "timestamp": "2024-01-15T10:30:00"
+  }
+}
+```
+
+#### Pricing Recommendation Response
+```json
+{
+  "success": true,
+  "message": "Pricing recommendation generated",
+  "data": {
+    "symbol": "GOLD",
+    "current_price": 1850.00,
+    "recommended_price": 1862.50,
+    "confidence_score": 0.75,
+    "price_change_percentage": 0.68,
+    "market_conditions": {
+      "trend": "upward",
+      "volatility": 0.025,
+      "market_condition": "bullish"
+    },
+    "reasoning": "Balanced strategy: 0.7% adjustment based on upward trend",
+    "timestamp": "2024-01-15T10:30:00"
+  }
+}
+```
+
+## 🧪 Testing
+
+### Run Demo Mode
+```bash
+python main.py --mode demo
+```
+
+### Manual Testing
+```bash
+# Test data loading
+python -c "from src.data_loader import DataLoader; dl = DataLoader(); print(dl.load_all_data().keys())"
+
+# Test forecasting
+python -c "from src.forecasting_model import PriceForecastingEngine; fe = PriceForecastingEngine(); print(fe.get_available_models())"
+
+# Test API server
+curl http://localhost:8000/health
+```
+
+## ☁️ AWS Deployment
+
+### Option 1: AWS Lambda + API Gateway
+
+#### Step 1: Install AWS CLI
+```bash
+pip install awscli
+aws configure
+```
+
+#### Step 2: Create Deployment Package
+```bash
+# Create deployment directory
+mkdir aws-deployment
+cp -r src/ aws-deployment/
+cp requirements.txt aws-deployment/
+cp main.py aws-deployment/
+
+# Install dependencies for Lambda
+cd aws-deployment
+pip install -r requirements.txt -t .
+```
+
+#### Step 3: Create Lambda Function
+```bash
+# Create ZIP package
+zip -r ai-retail-intelligence.zip .
+
+# Create Lambda function
+aws lambda create-function \
+  --function-name ai-retail-intelligence \
+  --runtime python3.9 \
+  --role arn:aws:iam::YOUR-ACCOUNT:role/lambda-execution-role \
+  --handler main.lambda_handler \
+  --zip-file fileb://ai-retail-intelligence.zip
+```
+
+#### Step 4: Configure API Gateway
+```bash
+# Create API Gateway (use AWS Console or CLI)
+# Connect Lambda function to API Gateway
+# Deploy API to stage
+```
+
+### Option 2: AWS ECS (Containerized)
+
+#### Step 1: Create Dockerfile
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+EXPOSE 8000
+
+CMD ["python", "main.py", "--mode", "server", "--host", "0.0.0.0"]
+```
+
+#### Step 2: Build and Push to ECR
+```bash
+# Build Docker image
+docker build -t ai-retail-intelligence .
+
+# Tag for ECR
+docker tag ai-retail-intelligence:latest YOUR-ACCOUNT.dkr.ecr.REGION.amazonaws.com/ai-retail-intelligence:latest
+
+# Push to ECR
+docker push YOUR-ACCOUNT.dkr.ecr.REGION.amazonaws.com/ai-retail-intelligence:latest
+```
+
+#### Step 3: Create ECS Service
+```bash
+# Create ECS cluster, task definition, and service
+# Use AWS Console or CloudFormation template
+```
+
+### Option 3: AWS EC2
+
+#### Step 1: Launch EC2 Instance
+```bash
+# Launch Ubuntu 20.04 LTS instance
+# Configure security groups (port 8000, 22)
+```
+
+#### Step 2: Setup Application
+```bash
+# SSH to instance
+ssh -i your-key.pem ubuntu@your-instance-ip
+
+# Install Python and dependencies
+sudo apt update
+sudo apt install python3 python3-pip git -y
+
+# Clone and setup application
+git clone <your-repo-url>
+cd ai-retail-intelligence
+pip3 install -r requirements.txt
+
+# Run application
+python3 main.py --mode server --host 0.0.0.0
+```
+
+#### Step 3: Setup Process Manager (Optional)
+```bash
+# Install PM2 for Node.js or use systemd
+sudo npm install -g pm2
+
+# Create ecosystem file
+echo 'module.exports = {
+  apps: [{
+    name: "ai-retail-intelligence",
+    script: "python3",
+    args: "main.py --mode server --host 0.0.0.0",
+    cwd: "/home/ubuntu/ai-retail-intelligence"
+  }]
+}' > ecosystem.config.js
+
+# Start with PM2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+### AWS Services Integration
+
+#### Amazon Bedrock (LLM Service)
+```python
+# Update src/config.py
+LLM_MODEL_NAME = "aws-bedrock"
+AWS_REGION = "us-east-1"
+
+# The document parser will automatically use Bedrock when configured
+```
+
+#### Amazon S3 (Data Storage)
+```python
+# Store CSV files in S3
+# Update data loader to read from S3
+import boto3
+
+s3 = boto3.client('s3')
+# Modify DataLoader to read from S3 bucket
+```
+
+#### Amazon CloudWatch (Monitoring)
+```python
+# Add CloudWatch logging
+import boto3
+
+cloudwatch = boto3.client('cloudwatch')
+# Send custom metrics to CloudWatch
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+```bash
+# Application Settings
+DEBUG=false
+APP_NAME="AI Retail Intelligence Platform"
+APP_VERSION="1.0.0"
+
+# API Settings
+API_HOST=0.0.0.0
+API_PORT=8000
+API_PREFIX=/api/v1
+
+# Data Settings
+DATA_DIR=data
+MODEL_DIR=models
+
+# ML Model Settings
+DEFAULT_FORECAST_HORIZON=30
+CONFIDENCE_LEVEL=0.95
+
+# LLM Settings
+LLM_MODEL_NAME=mock
+LLM_MAX_TOKENS=1000
+
+# AWS Settings (optional)
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+
+# Rate Limiting
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_WINDOW=60
+```
+
+### Model Configuration
+```python
+# Available forecasting models
+MODELS = {
+    'moving_average': 'Simple Moving Average',
+    'random_forest': 'Random Forest (requires scikit-learn)'
+}
+
+# Pricing strategies
+STRATEGIES = {
+    'conservative': 'Low risk, minimal price changes',
+    'balanced': 'Moderate risk, balanced approach',
+    'aggressive': 'High risk, maximum returns'
+}
+```
+
+## 📊 Sample Data
+
+The platform includes realistic sample datasets:
+
+### Gold Prices (gold_prices.csv)
+- **Period**: 2020-2024 (4 years)
+- **Records**: ~1,460 daily prices
+- **Features**: Date, Open, High, Low, Close, Volume
+- **Patterns**: Upward trend with seasonal variations
+
+### Silver Prices (silver_prices.csv)
+- **Period**: 2020-2024 (4 years)
+- **Records**: ~1,460 daily prices
+- **Features**: Date, Open, High, Low, Close, Volume
+- **Patterns**: Higher volatility than gold, correlated movements
+
+### Indian ETF Prices (etf_prices.csv)
+- **Period**: 2020-2024 (4 years)
+- **ETFs**: NIFTYBEES, GOLDBEES, BANKBEES, JUNIORBEES
+- **Records**: ~5,840 total records
+- **Features**: Date, Symbol, Open, High, Low, Close, Volume
+
+## 🤖 Machine Learning Models
+
+### Forecasting Models
+
+#### 1. Simple Moving Average
+- **Use Case**: Baseline forecasting, trend following
+- **Advantages**: Fast, interpretable, no external dependencies
+- **Parameters**: Window size (default: 30 days)
+
+#### 2. Random Forest
+- **Use Case**: Advanced forecasting with feature engineering
+- **Advantages**: Handles non-linear patterns, feature importance
+- **Requirements**: scikit-learn
+- **Features**: Price lags, technical indicators, volatility
+
+### Model Evaluation Metrics
+- **MAE**: Mean Absolute Error
+- **RMSE**: Root Mean Square Error
+- **R²**: Coefficient of Determination
+- **MAPE**: Mean Absolute Percentage Error
+- **Directional Accuracy**: Percentage of correct trend predictions
+
+## 💡 Usage Examples
+
+### Python SDK Usage
+```python
+from src.data_loader import DataLoader
+from src.forecasting_model import PriceForecastingEngine
+from src.pricing_engine import PricingEngine
+
+# Load data
+loader = DataLoader()
+gold_data = loader.load_gold_prices()
+
+# Train forecasting model
+engine = PriceForecastingEngine()
+engine.train_model(gold_data, symbol='GOLD')
+
+# Generate forecast
+forecast = engine.predict_prices('GOLD', horizon=7)
+print(f"7-day forecast: {forecast.predicted_prices}")
+
+# Get pricing recommendation
+pricing = PricingEngine()
+recommendation = pricing.recommend_pricing(
+    current_price=1850.0,
+    symbol='GOLD',
+    strategy_type='balanced'
+)
+print(f"Recommended price: ${recommendation.recommended_price:.2f}")
+```
+
+### Market Copilot Usage
+```python
+from src.market_copilot import MarketCopilot
+
+copilot = MarketCopilot()
+
+# Update with market data
+copilot.update_context({
+    'price_data': {
+        'GOLD': {'current_price': 1850.0, 'trend': 'upward'}
+    }
+})
+
+# Ask questions
+response = copilot.process_query("What is the current gold price?")
+print(response)
+
+response = copilot.process_query("How is gold trending?")
+print(response)
+```
+
+### Document Analysis Usage
+```python
+from src.document_parser import DocumentParser
+
+parser = DocumentParser()
+
+# Analyze financial document
+analysis = parser.parse_document(
+    text_content="Gold prices rose 15% this quarter due to inflation concerns...",
+    document_id="market_report_q4"
+)
+
+print(f"Document type: {analysis.document_type}")
+print(f"Entities: {len(analysis.extracted_entities)}")
+print(f"Market insights: {analysis.market_insights}")
+```
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### 1. Import Errors
+```bash
+# Error: ModuleNotFoundError
+# Solution: Install dependencies
+pip install -r requirements.txt
+
+# Error: No module named 'src'
+# Solution: Run from project root directory
+cd ai-retail-intelligence
+python main.py
+```
+
+#### 2. Data Loading Issues
+```bash
+# Error: File not found
+# Solution: Generate sample data
+python src/data_generator.py
+
+# Error: Empty dataset
+# Solution: Check CSV file format and content
+```
+
+#### 3. Model Training Failures
+```bash
+# Error: Insufficient data
+# Solution: Ensure minimum 50 records in dataset
+
+# Error: scikit-learn not available
+# Solution: Install optional dependencies
+pip install scikit-learn
+```
+
+#### 4. API Server Issues
+```bash
+# Error: Port already in use
+# Solution: Use different port
+python main.py --mode server --port 8001
+
+# Error: FastAPI not available
+# Solution: Install web dependencies
+pip install fastapi uvicorn
+```
+
+### Performance Optimization
+
+#### 1. Data Loading
+```python
+# Use data caching for repeated loads
+# Implement data pagination for large datasets
+# Use efficient data formats (Parquet, HDF5)
+```
+
+#### 2. Model Training
+```python
+# Use incremental learning for large datasets
+# Implement model caching and versioning
+# Use GPU acceleration for deep learning models
+```
+
+#### 3. API Performance
+```python
+# Implement response caching
+# Use async endpoints for I/O operations
+# Add request rate limiting
+```
+
+## 🤝 Contributing
+
+### Development Setup
+```bash
+# Clone repository
+git clone <repository-url>
+cd ai-retail-intelligence
+
+# Create development environment
+python -m venv dev-env
+source dev-env/bin/activate  # or dev-env\Scripts\activate on Windows
+
+# Install development dependencies
+pip install -r requirements.txt
+pip install pytest black flake8 mypy
+
+# Run code formatting
+black src/
+flake8 src/
+mypy src/
+```
+
+### Testing
+```bash
+# Run unit tests
+pytest tests/
+
+# Run integration tests
+python main.py --mode demo
+
+# Test API endpoints
+curl -X POST http://localhost:8000/api/v1/forecast/gold \
+  -H "Content-Type: application/json" \
+  -d '{"symbol": "GOLD", "horizon": 7}'
+```
+
+## 📄 License
+
+This project is developed for the AI for Bharat Hackathon. Please refer to the hackathon guidelines for usage and distribution terms.
+
+## 🆘 Support
+
+For issues, questions, or contributions:
+
+1. **Check Documentation**: Review this README and API docs
+2. **Run Diagnostics**: Use `python main.py --mode status`
+3. **Check Logs**: Review logs in the `logs/` directory
+4. **Demo Mode**: Run `python main.py --mode demo` to verify setup
+
+## 🎯 Roadmap
+
+### Phase 1 (Current)
+- ✅ Core forecasting models
+- ✅ Pricing intelligence engine
+- ✅ Document analysis with LLM
+- ✅ Market copilot AI assistant
+- ✅ REST API endpoints
+
+### Phase 2 (Future)
+- [ ] Advanced ML models (LSTM, Prophet)
+- [ ] Real-time data integration
+- [ ] Web dashboard interface
+- [ ] Advanced analytics and reporting
+- [ ] Multi-language support
+
+### Phase 3 (Extended)
+- [ ] Mobile application
+- [ ] Advanced AI features
+- [ ] Enterprise integrations
+- [ ] Scalable cloud architecture
+- [ ] Advanced security features
+
+---
+
+**Built with ❤️ for AI for Bharat Hackathon**
+
+*Empowering retail and commerce with intelligent market insights*
