@@ -11,12 +11,16 @@ The AI for Retail, Commerce & Market Intelligence solution is a comprehensive AI
 - **Pricing_Engine**: Component that analyzes and optimizes pricing strategies for precious metals
 - **Document_Parser**: LLM-based component for financial document analysis and text extraction
 - **Data_Loader**: Component responsible for loading and preprocessing sample CSV data
-- **Market_Copilot**: AI assistant for Q&A over financial market data
+- **Market_Copilot**: AI assistant for Q&A over financial market data with integrated competitive pricing intelligence
 - **API_Gateway**: FastAPI-based interface for external system integration
+- **Competitive_Pricing_Engine**: Multi-platform price comparison and analysis component
+- **Bedrock_Forecasting_Engine**: Amazon Bedrock foundation model integration framework
 - **Gold_Price_Data**: Sample CSV data containing historical gold price information
 - **Silver_Price_Data**: Sample CSV data containing historical silver price information
 - **ETF_Price_Data**: Sample CSV data containing popular Indian ETF price information
+- **Competitive_Pricing_Data**: Sample CSV data with multi-platform product pricing across Indian e-commerce platforms
 - **LLM_Service**: Mock/inference-ready LLM service compatible with AWS Bedrock
+- **Foundation_Models**: Amazon Bedrock models including Claude 3 Sonnet/Haiku and Titan Text
 
 ## Requirements
 
@@ -174,3 +178,71 @@ The AI for Retail, Commerce & Market Intelligence solution is a comprehensive AI
 3. WHEN environment variables are used, THE System SHALL provide clear documentation
 4. THE System SHALL validate configuration parameters at startup
 5. THE System SHALL provide sensible default values for all configuration options
+
+### Requirement 13: Competitive Pricing Intelligence Module
+
+**User Story:** As a retail consumer, I want to compare prices across multiple Indian e-commerce platforms, so that I can find the best deals and save money on purchases.
+
+#### Acceptance Criteria
+
+1. THE Competitive_Pricing_Engine SHALL compare prices across Amazon, Flipkart, JioMart, Blinkit, Zepto, and DMart Ready platforms
+2. WHEN a product is searched, THE System SHALL return current prices from all available platforms
+3. THE Competitive_Pricing_Engine SHALL identify the lowest and highest prices with platform names
+4. THE System SHALL calculate potential savings amount and percentage for each product
+5. WHEN price comparison is complete, THE System SHALL provide purchase recommendations
+6. THE Competitive_Pricing_Engine SHALL track price trends over 7-day and 30-day periods
+7. THE System SHALL identify and rank products with the highest savings potential
+8. THE Competitive_Pricing_Engine SHALL provide platform summary statistics and analytics
+
+### Requirement 14: Market Copilot Integration with Competitive Pricing
+
+**User Story:** As a user, I want to ask natural language questions about product prices and get intelligent responses, so that I can make informed purchasing decisions through conversation.
+
+#### Acceptance Criteria
+
+1. THE Market_Copilot SHALL recognize and route competitive pricing queries to the appropriate engine
+2. WHEN users ask about price comparisons, THE Market_Copilot SHALL provide formatted comparison results
+3. THE Market_Copilot SHALL handle queries about best deals and savings opportunities
+4. THE System SHALL integrate pricing insights with market intelligence responses
+5. WHEN pricing data is updated, THE Market_Copilot SHALL reflect changes in subsequent responses
+6. THE Market_Copilot SHALL provide contextual recommendations based on pricing analysis
+
+### Requirement 15: Amazon Bedrock Integration Framework
+
+**User Story:** As a data scientist, I want to leverage Amazon Bedrock foundation models for advanced forecasting and market analysis, so that I can provide more accurate and insightful predictions.
+
+#### Acceptance Criteria
+
+1. THE Bedrock_Forecasting_Engine SHALL provide framework integration with Claude 3 Sonnet and Haiku models
+2. THE System SHALL support Amazon Titan Text models for cost-effective predictions
+3. WHEN Bedrock models are used, THE System SHALL provide detailed explanations and reasoning
+4. THE Bedrock_Forecasting_Engine SHALL implement hybrid forecasting combining traditional ML and foundation models
+5. THE System SHALL include cost tracking and optimization for Bedrock API usage
+6. THE Bedrock_Forecasting_Engine SHALL support multiple use cases including risk assessment and market sentiment analysis
+7. WHEN foundation models are unavailable, THE System SHALL gracefully fallback to traditional forecasting methods
+
+### Requirement 16: Enhanced API Gateway with New Endpoints
+
+**User Story:** As a developer, I want comprehensive API endpoints for competitive pricing and Bedrock integration, so that I can build applications that leverage all platform capabilities.
+
+#### Acceptance Criteria
+
+1. THE API_Gateway SHALL implement competitive pricing endpoints for product comparison
+2. THE API_Gateway SHALL provide endpoints for best deals discovery and platform analytics
+3. THE System SHALL include Bedrock forecasting endpoints with model selection capabilities
+4. WHEN API requests are made, THE System SHALL validate parameters and provide appropriate responses
+5. THE API_Gateway SHALL implement proper error handling for all new endpoints
+6. THE System SHALL provide comprehensive API documentation for all competitive pricing and Bedrock features
+
+### Requirement 17: Multi-Platform Data Integration
+
+**User Story:** As a data analyst, I want sample data representing real e-commerce pricing patterns, so that I can test and demonstrate competitive pricing capabilities.
+
+#### Acceptance Criteria
+
+1. THE System SHALL include sample CSV data with pricing from multiple Indian e-commerce platforms
+2. THE Competitive_Pricing_Data SHALL contain realistic price variations and trends over time
+3. WHEN competitive pricing data is loaded, THE System SHALL validate data format and completeness
+4. THE Data_Loader SHALL preprocess competitive pricing data for analysis and comparison
+5. THE System SHALL support multiple product categories with representative pricing patterns
+6. THE Competitive_Pricing_Data SHALL include sufficient historical data for trend analysis

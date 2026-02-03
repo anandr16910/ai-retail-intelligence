@@ -15,12 +15,19 @@ try:
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
+    # Create dummy BaseModel for when FastAPI is not available
+    class BaseModel:
+        pass
+    class Field:
+        def __init__(self, *args, **kwargs):
+            pass
 
 from src.data_loader import DataLoader
 from src.forecasting_model import PriceForecastingEngine
 from src.pricing_engine import PricingEngine
 from src.document_parser import DocumentParser
 from src.market_copilot import MarketCopilot
+from src.competitive_pricing import CompetitivePricingEngine, CompetitivePricingCopilot
 from src.config import settings
 from src.exceptions import (
     AIRetailIntelligenceError, DataLoadingError, ModelTrainingError,
@@ -79,13 +86,14 @@ forecasting_engine = None
 pricing_engine = None
 document_parser = None
 market_copilot = None
+competitive_pricing_engine = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
-    global data_loader, forecasting_engine, pricing_engine, document_parser, market_copilot
+    global data_loader, forecasting_engine, pricing_engine, document_parser, market_copilot, competitive_pricing_engine
     
     try:
         # Initialize components
@@ -94,6 +102,7 @@ async def lifespan(app: FastAPI):
         pricing_engine = PricingEngine()
         document_parser = DocumentParser()
         market_copilot = MarketCopilot()
+        competitive_pricing_engine = CompetitivePricingEngine()
         
         # Load initial data
         try:
@@ -529,7 +538,8 @@ if FASTAPI_AVAILABLE:
                 "forecasting_engine": forecasting_engine is not None,
                 "pricing_engine": pricing_engine is not None,
                 "document_parser": document_parser is not None,
-                "market_copilot": market_copilot is not None
+                "market_copilot": market_copilot is not None,
+                "competitive_pricing_engine": competitive_pricing_engine is not None
             },
             "configuration": {
                 "api_prefix": settings.api_prefix,
@@ -552,10 +562,105 @@ if FASTAPI_AVAILABLE:
         if market_copilot:
             info["copilot_stats"] = market_copilot.get_copilot_stats()
         
+        if competitive_pricing_engine:
+            info["competitive_pricing_summary"] = competitive_pricing_engine.get_platform_summary()
+        
         return APIResponse(
             success=True,
             message="System information retrieved",
             data=info
+        )
+    
+    
+    # Competitive Pricing Endpoints
+    @app.get(f"{settings.api_prefix}/price-comparison/{{product_name}}")
+    @handle_exceptions
+    async def get_price_comparison(product_name: str):
+        """Get competitive price comparison for a product."""
+        if not competitive_pricing_engine:
+            raise HTTPException(status_code=503, detail="Competitive pricing engine not available")
+        
+        # Search for product by name
+        products = competitive_pricing_engine.search_products(product_name)
+        
+        if not products:
+            raise HTTPException(status_code=404, detail=f"Product '{product_name}' not found")
+        
+        # Use the first matching product
+        product_id = products[0]['product_id']
+        comparison = competitive_pricing_engine.compare_prices(product_id)
+        
+        if not comparison:
+            raise HTTPException(status_code=404, detail="No pricing data available for this product")
+        
+        return APIResponse(
+            success=True,
+            message=f"Price comparison for {product_name}",
+            data=comparison.to_dict()
+        )
+    
+    
+    @app.get(f"{settings.api_prefix}/price-comparison/product/{{product_id}}")
+    @handle_exceptions
+    async def get_price_comparison_by_id(product_id: str):
+        """Get competitive price comparison by product ID."""
+        if not competitive_pricing_engine:
+            raise HTTPException(status_code=503, detail="Competitive pricing engine not available")
+        
+        comparison = competitive_pricing_engine.compare_prices(product_id)
+        
+        if not comparison:
+            raise HTTPException(status_code=404, detail="No pricing data available for this product")
+        
+        return APIResponse(
+            success=True,
+            message=f"Price comparison for product {product_id}",
+            data=comparison.to_dict()
+        )
+    
+    
+    @app.get(f"{settings.api_prefix}/price-comparison/products")
+    async def get_available_products():
+        """Get list of available products for price comparison."""
+        if not competitive_pricing_engine:
+            raise HTTPException(status_code=503, detail="Competitive pricing engine not available")
+        
+        products = competitive_pricing_engine.get_product_list()
+        
+        return APIResponse(
+            success=True,
+            message="Available products retrieved",
+            data={"products": products}
+        )
+    
+    
+    @app.get(f"{settings.api_prefix}/price-comparison/best-deals")
+    async def get_best_deals(limit: int = 10):
+        """Get products with the highest savings potential."""
+        if not competitive_pricing_engine:
+            raise HTTPException(status_code=503, detail="Competitive pricing engine not available")
+        
+        deals = competitive_pricing_engine.get_best_deals(limit)
+        
+        return APIResponse(
+            success=True,
+            message="Best deals retrieved",
+            data={"deals": deals}
+        )
+    
+    
+    @app.get(f"{settings.api_prefix}/price-comparison/platforms/summary")
+    async def get_platform_summary():
+        """Get summary statistics for all platforms."""
+        if not competitive_pricing_engine:
+            raise HTTPException(status_code=503, detail="Competitive pricing engine not available")
+        
+        summary = competitive_pricing_engine.get_platform_summary()
+        
+        return APIResponse(
+            success=True,
+            message="Platform summary retrieved",
+            data=summary
         )
 
 

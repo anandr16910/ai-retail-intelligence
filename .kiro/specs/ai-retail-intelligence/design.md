@@ -21,13 +21,16 @@ The system follows a layered architecture pattern with the following key layers:
 - **Document Parser**: LLM-based text extraction (`document_parser.py`)
 
 ### Service Layer
-- **Market Copilot**: AI assistant for financial Q&A (`market_copilot.py`)
+- **Market Copilot**: AI assistant for financial Q&A with integrated competitive pricing intelligence (`market_copilot.py`)
 - **API Gateway**: FastAPI endpoints for external integration (`api.py`)
+- **Competitive Pricing Engine**: Multi-platform price comparison and analysis (`competitive_pricing.py`)
+- **Bedrock Forecasting Engine**: Amazon Bedrock foundation model integration framework (`bedrock_forecasting.py`)
 
 ### Infrastructure Layer
-- **Configuration Management**: Environment-specific settings
+- **Configuration Management**: Environment-specific settings including Bedrock configuration
 - **Logging and Monitoring**: Comprehensive logging for debugging and monitoring
 - **Error Handling**: Centralized error handling and validation
+- **Cost Tracking**: Bedrock usage and cost monitoring
 
 ```mermaid
 graph TB
@@ -43,6 +46,8 @@ graph TB
     subgraph "Service Layer"
         FC[Forecasting Service]
         PE[Pricing Engine]
+        CP[Competitive Pricing]
+        BF[Bedrock Forecasting]
         DP[Document Parser]
         MC[Market Copilot]
     end
@@ -50,6 +55,7 @@ graph TB
     subgraph "Model Layer"
         ML[ML Models]
         LLM[LLM Service]
+        BEDROCK[Bedrock Models]
     end
     
     subgraph "Data Layer"
@@ -61,14 +67,20 @@ graph TB
     WEB --> FASTAPI
     FASTAPI --> FC
     FASTAPI --> PE
+    FASTAPI --> CP
+    FASTAPI --> BF
     FASTAPI --> DP
     FASTAPI --> MC
     FC --> ML
     PE --> ML
+    CP --> ML
+    BF --> BEDROCK
     DP --> LLM
     MC --> LLM
+    MC --> CP
     FC --> DL
     PE --> DL
+    CP --> DL
     DL --> CSV
 ```
 
@@ -196,6 +208,13 @@ POST /api/v1/forecast/etf
 GET /api/v1/pricing/recommendations
 POST /api/v1/pricing/analyze
 
+# Competitive Pricing Endpoints
+GET /api/v1/price-comparison/{product_name}
+GET /api/v1/price-comparison/product/{product_id}
+GET /api/v1/price-comparison/products
+GET /api/v1/price-comparison/best-deals
+GET /api/v1/price-comparison/platforms/summary
+
 # Document Processing
 POST /api/v1/documents/parse
 GET /api/v1/documents/insights
@@ -204,9 +223,82 @@ GET /api/v1/documents/insights
 POST /api/v1/copilot/query
 GET /api/v1/copilot/context
 
+# Bedrock Integration (Framework)
+POST /api/v1/bedrock/forecast/{symbol}
+POST /api/v1/bedrock/compare/{symbol}
+POST /api/v1/bedrock/insights
+
 # Data Management
 GET /api/v1/data/status
 POST /api/v1/data/reload
+```
+
+### Competitive Pricing Engine Component (`competitive_pricing.py`)
+
+**Purpose**: Multi-platform price comparison and analysis across Indian e-commerce platforms.
+
+**Key Classes**:
+- `CompetitivePricingEngine`: Main price comparison engine
+- `PriceComparison`: Data model for comparison results
+- `CompetitivePricingCopilot`: Integration with Market Copilot
+
+**Key Methods**:
+```python
+class CompetitivePricingEngine:
+    def compare_prices(self, product_id: str) -> Optional[PriceComparison]
+    def get_product_list(self) -> List[Dict[str, str]]
+    def search_products(self, query: str) -> List[Dict[str, str]]
+    def get_best_deals(self, limit: int = 10) -> List[Dict[str, Any]]
+    def get_platform_summary(self) -> Dict[str, Any]
+```
+
+**Supported Platforms**:
+- Amazon India
+- Flipkart
+- JioMart
+- Blinkit
+- Zepto
+- DMart Ready
+
+### Bedrock Forecasting Engine Component (`bedrock_forecasting.py`)
+
+**Purpose**: Amazon Bedrock foundation model integration framework for advanced forecasting.
+
+**Key Classes**:
+- `BedrockForecastingEngine`: Main Bedrock integration engine
+- `ClaudeForecaster`: Claude 3 Sonnet/Haiku implementation
+- `TitanForecaster`: Amazon Titan Text implementation
+- `HybridForecastingEngine`: Combines traditional ML with foundation models
+
+**Key Methods**:
+```python
+class BedrockForecastingEngine:
+    def forecast_with_bedrock(self, symbol: str, historical_data: List, horizon: int, model_name: str) -> BedrockForecastResponse
+    def compare_model_predictions(self, symbol: str, historical_data: List, horizon: int) -> Dict[str, BedrockForecastResponse]
+    def get_model_capabilities(self) -> Dict[str, Any]
+```
+
+**Supported Models**:
+- Claude 3 Sonnet (complex analysis, detailed explanations)
+- Claude 3 Haiku (fast inference, cost-effective)
+- Amazon Titan Text Premier (balanced performance)
+
+### Bedrock Configuration Component (`bedrock_config.py`)
+
+**Purpose**: Configuration and cost management for Bedrock integration.
+
+**Key Classes**:
+- `BedrockSettings`: Configuration management
+- `BedrockModelRegistry`: Model capabilities and configurations
+- `BedrockUseCaseMapper`: Optimal model selection for use cases
+- `BedrockCostTracker`: Usage and cost monitoring
+
+**Key Methods**:
+```python
+class BedrockSettings:
+    def get_model_parameters(self, model: BedrockModel) -> Dict[str, Any]
+    def validate_credentials(self) -> bool
+    def get_client_config(self) -> Dict[str, Any]
 ```
 
 ## Data Models
@@ -297,6 +389,68 @@ class MarketQuery:
     
     def is_high_confidence(self) -> bool:
         return self.confidence_score > 0.8
+```
+
+### Price Comparison Model
+
+```python
+@dataclass
+class PriceComparison:
+    product_id: str
+    product_name: str
+    current_prices: Dict[str, float]
+    lowest_platform: str
+    highest_platform: str
+    lowest_price: float
+    highest_price: float
+    price_difference_percentage: float
+    savings_amount: float
+    recommendation: str
+    trend_7_days: Dict[str, float]
+    trend_30_days: Dict[str, float]
+    analysis_timestamp: datetime
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'product_id': self.product_id,
+            'product_name': self.product_name,
+            'current_prices': self.current_prices,
+            'lowest_platform': self.lowest_platform,
+            'highest_platform': self.highest_platform,
+            'lowest_price': self.lowest_price,
+            'highest_price': self.highest_price,
+            'price_difference_percentage': self.price_difference_percentage,
+            'savings_amount': self.savings_amount,
+            'recommendation': self.recommendation,
+            'trend_7_days': self.trend_7_days,
+            'trend_30_days': self.trend_30_days,
+            'analysis_timestamp': self.analysis_timestamp.isoformat()
+        }
+```
+
+### Bedrock Forecast Response Model
+
+```python
+@dataclass
+class BedrockForecastResponse:
+    symbol: str
+    predictions: List[float]
+    confidence_intervals: List[Dict[str, float]]
+    model_explanation: str
+    risk_assessment: Dict[str, Any]
+    market_insights: List[str]
+    timestamp: datetime
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'symbol': self.symbol,
+            'predictions': self.predictions,
+            'confidence_intervals': self.confidence_intervals,
+            'model_explanation': self.model_explanation,
+            'risk_assessment': self.risk_assessment,
+            'market_insights': self.market_insights,
+            'timestamp': self.timestamp.isoformat()
+        }
 ```
 
 ## Error Handling
@@ -476,3 +630,43 @@ tests/
 ### Property 20: Rate Limiting Enforcement
 *For any* sequence of API requests exceeding defined limits, the API_Gateway should enforce rate limiting consistently and return appropriate HTTP status codes
 **Validates: Requirements 7.6**
+
+### Property 21: Multi-Platform Price Comparison
+*For any* valid product identifier, the Competitive_Pricing_Engine should successfully compare prices across all available platforms and identify the lowest and highest prices
+**Validates: Requirements 13.1, 13.2, 13.3**
+
+### Property 22: Savings Calculation Accuracy
+*For any* product with price variations across platforms, the System should accurately calculate potential savings amount and percentage with mathematical precision
+**Validates: Requirements 13.4**
+
+### Property 23: Price Trend Analysis Consistency
+*For any* product with sufficient historical data, the Competitive_Pricing_Engine should generate consistent 7-day and 30-day price trend analysis
+**Validates: Requirements 13.6**
+
+### Property 24: Best Deals Ranking
+*For any* set of products with price variations, the System should correctly identify and rank products with the highest savings potential in descending order
+**Validates: Requirements 13.7**
+
+### Property 25: Competitive Pricing Query Integration
+*For any* competitive pricing query, the Market_Copilot should correctly route the query to the Competitive_Pricing_Engine and provide formatted responses
+**Validates: Requirements 14.1, 14.2**
+
+### Property 26: Pricing Context Integration
+*For any* pricing analysis update, the Market_Copilot should reflect changes in subsequent responses and provide contextual recommendations
+**Validates: Requirements 14.5, 14.6**
+
+### Property 27: Bedrock Model Integration
+*For any* valid forecasting request, the Bedrock_Forecasting_Engine should successfully interface with foundation models and provide detailed explanations and reasoning
+**Validates: Requirements 15.1, 15.2, 15.3**
+
+### Property 28: Hybrid Forecasting Consistency
+*For any* forecasting scenario, the System should successfully combine traditional ML and foundation model predictions into coherent ensemble forecasts
+**Validates: Requirements 15.4**
+
+### Property 29: Bedrock Cost Optimization
+*For any* sequence of Bedrock API calls, the System should track usage costs and enforce configured limits while optimizing model selection for cost-effectiveness
+**Validates: Requirements 15.5**
+
+### Property 30: Graceful Bedrock Fallback
+*For any* Bedrock service unavailability, the System should gracefully fallback to traditional forecasting methods without service interruption
+**Validates: Requirements 15.7**

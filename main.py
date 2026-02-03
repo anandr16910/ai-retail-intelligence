@@ -14,6 +14,7 @@ from src.forecasting_model import PriceForecastingEngine
 from src.pricing_engine import PricingEngine
 from src.document_parser import DocumentParser
 from src.market_copilot import MarketCopilot
+from src.competitive_pricing import CompetitivePricingEngine, CompetitivePricingCopilot
 from src.config import settings
 from src.exceptions import AIRetailIntelligenceError
 
@@ -28,6 +29,8 @@ class AIRetailIntelligencePlatform:
         self.pricing_engine = None
         self.document_parser = None
         self.market_copilot = None
+        self.competitive_pricing_engine = None
+        self.competitive_pricing_copilot = None
         self.initialized = False
         
     def initialize(self):
@@ -48,8 +51,14 @@ class AIRetailIntelligencePlatform:
             print("- Initializing document parser...")
             self.document_parser = DocumentParser()
             
+            print("- Initializing competitive pricing engine...")
+            self.competitive_pricing_engine = CompetitivePricingEngine()
+            
+            print("- Initializing competitive pricing copilot...")
+            self.competitive_pricing_copilot = CompetitivePricingCopilot(self.competitive_pricing_engine)
+            
             print("- Initializing market copilot...")
-            self.market_copilot = MarketCopilot()
+            self.market_copilot = MarketCopilot(self.competitive_pricing_copilot)
             
             # Load and process initial data
             print("- Loading initial data...")
@@ -232,16 +241,64 @@ class AIRetailIntelligencePlatform:
             sample_queries = [
                 "What is the current gold price?",
                 "How is the market trending?",
-                "What are the forecasts for silver?"
+                "What are the forecasts for silver?",
+                "Compare prices for iPhone 15"
             ]
             
             for query in sample_queries:
                 print(f"\nQuery: {query}")
-                response = self.market_copilot.process_query(query)
+                
+                # Check if it's a competitive pricing query
+                if any(word in query.lower() for word in ['compare', 'price', 'cheapest', 'deal']):
+                    if self.competitive_pricing_copilot:
+                        response = self.competitive_pricing_copilot.process_pricing_query(query)
+                    else:
+                        response = "Competitive pricing module not available"
+                else:
+                    response = self.market_copilot.process_query(query)
+                
                 print(f"Response: {response}")
                 
         except Exception as e:
             print(f"✗ Market copilot demo failed: {str(e)}")
+        
+        # Demo 5: Competitive Pricing
+        print("\n5. COMPETITIVE PRICING DEMO")
+        print("-" * 32)
+        
+        try:
+            if self.competitive_pricing_engine:
+                # Get available products
+                products = self.competitive_pricing_engine.get_product_list()
+                
+                if products:
+                    product = products[0]
+                    print(f"Comparing prices for: {product['product_name']}")
+                    
+                    comparison = self.competitive_pricing_engine.compare_prices(product['product_id'])
+                    
+                    if comparison:
+                        print(f"✓ Price comparison results:")
+                        print(f"  Lowest price: ₹{comparison.lowest_price:.2f} ({comparison.lowest_platform})")
+                        print(f"  Highest price: ₹{comparison.highest_price:.2f} ({comparison.highest_platform})")
+                        print(f"  Savings: ₹{comparison.savings_amount:.2f} ({comparison.price_difference_percentage:.1f}%)")
+                        print(f"  Recommendation: {comparison.recommendation}")
+                    else:
+                        print("No comparison data available")
+                else:
+                    print("No products available for comparison")
+                    
+                # Show best deals
+                print(f"\nBest deals available:")
+                deals = self.competitive_pricing_engine.get_best_deals(3)
+                for i, deal in enumerate(deals, 1):
+                    print(f"  {i}. {deal['product_name']}: Save ₹{deal['savings_amount']:.2f}")
+                    
+            else:
+                print("Competitive pricing engine not available")
+                
+        except Exception as e:
+            print(f"✗ Competitive pricing demo failed: {str(e)}")
         
         print("\n" + "="*60)
         print("DEMO COMPLETE")
@@ -257,7 +314,9 @@ class AIRetailIntelligencePlatform:
                 'forecasting_engine': self.forecasting_engine is not None,
                 'pricing_engine': self.pricing_engine is not None,
                 'document_parser': self.document_parser is not None,
-                'market_copilot': self.market_copilot is not None
+                'market_copilot': self.market_copilot is not None,
+                'competitive_pricing_engine': self.competitive_pricing_engine is not None,
+                'competitive_pricing_copilot': self.competitive_pricing_copilot is not None
             },
             'data_status': {},
             'model_status': {},

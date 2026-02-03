@@ -7,16 +7,27 @@ A comprehensive AI-powered platform for market intelligence, demand forecasting,
 ### Core Capabilities
 - **Price Trend Forecasting**: ML-based prediction for gold, silver, and ETF prices
 - **Intelligent Pricing Engine**: Market analysis and pricing recommendations
+- **Competitive Pricing Intelligence**: Multi-platform price comparison across Amazon, Flipkart, JioMart, Blinkit, Zepto, DMart Ready
 - **Document Intelligence**: LLM-powered financial document analysis
-- **Market Copilot**: AI assistant for natural language market queries
+- **Market Copilot**: AI assistant for natural language market queries with integrated pricing insights
 - **Real-time API**: FastAPI-based REST endpoints for integration
+- **Amazon Bedrock Framework**: Advanced forecasting using Claude 3 and Titan foundation models
 
 ### Key Components
 - **Data Pipeline**: Automated CSV data loading and preprocessing
 - **ML Models**: Multiple forecasting algorithms (Moving Average, Random Forest)
+- **Bedrock Integration**: Framework for Claude 3 Sonnet/Haiku and Amazon Titan models
 - **Pricing Strategies**: Conservative, balanced, and aggressive pricing approaches
+- **Competitive Analysis**: Real-time price tracking and savings recommendations
 - **Document Parser**: Extract insights from financial reports and market analysis
 - **Conversational AI**: Natural language interface for market intelligence
+
+### New Competitive Pricing Features
+- **Multi-Platform Comparison**: Compare prices across 6 major Indian e-commerce platforms
+- **Savings Calculator**: Automatic calculation of potential savings and best deals
+- **Price Trend Analysis**: 7-day and 30-day price movement tracking
+- **Smart Recommendations**: AI-powered purchase recommendations based on price analysis
+- **API Integration**: RESTful endpoints for price comparison and deal discovery
 
 ## 🏗️ Architecture
 
@@ -57,7 +68,8 @@ ai-retail-intelligence/
 ├── data/                          # Sample datasets
 │   ├── gold_prices.csv           # Historical gold price data
 │   ├── silver_prices.csv         # Historical silver price data
-│   └── etf_prices.csv            # Indian ETF price data
+│   ├── etf_prices.csv            # Indian ETF price data
+│   └── competitive_pricing_sample.csv # Multi-platform pricing data
 ├── src/                          # Source code
 │   ├── __init__.py
 │   ├── config.py                 # Configuration management
@@ -66,15 +78,20 @@ ai-retail-intelligence/
 │   ├── data_loader.py            # Data loading and preprocessing
 │   ├── data_generator.py         # Sample data generation
 │   ├── forecasting_model.py      # ML forecasting models
+│   ├── bedrock_forecasting.py    # Amazon Bedrock integration framework
+│   ├── bedrock_config.py         # Bedrock configuration and settings
 │   ├── pricing_engine.py         # Pricing intelligence
+│   ├── competitive_pricing.py    # Multi-platform price comparison
 │   ├── document_parser.py        # LLM-based document analysis
-│   ├── market_copilot.py         # AI assistant
+│   ├── market_copilot.py         # AI assistant with pricing intelligence
 │   └── api.py                    # FastAPI endpoints
 ├── models/                       # Trained ML models
 ├── logs/                         # Application logs
 ├── tests/                        # Test files
 ├── main.py                       # Main application entry point
 ├── requirements.txt              # Python dependencies
+├── price_comparison.ipynb        # Competitive pricing visualization
+├── BEDROCK_INTEGRATION.md        # Amazon Bedrock integration guide
 ├── .env.example                  # Environment configuration template
 └── README.md                     # This file
 ```
@@ -580,6 +597,132 @@ analysis = parser.parse_document(
 print(f"Document type: {analysis.document_type}")
 print(f"Entities: {len(analysis.extracted_entities)}")
 print(f"Market insights: {analysis.market_insights}")
+```
+
+### Competitive Pricing Usage
+```python
+from src.competitive_pricing import CompetitivePricingEngine
+
+# Initialize pricing engine
+pricing_engine = CompetitivePricingEngine()
+
+# Compare prices for a product
+comparison = pricing_engine.compare_prices("P001")  # Basmati Rice 5kg
+print(f"Product: {comparison.product_name}")
+print(f"Lowest price: ₹{comparison.lowest_price} ({comparison.lowest_platform})")
+print(f"Highest price: ₹{comparison.highest_price} ({comparison.highest_platform})")
+print(f"Savings: ₹{comparison.savings_amount} ({comparison.price_difference_percentage:.1f}%)")
+print(f"Recommendation: {comparison.recommendation}")
+
+# Get best deals
+deals = pricing_engine.get_best_deals(5)
+for deal in deals:
+    print(f"{deal['product_name']}: Save ₹{deal['savings_amount']:.2f}")
+```
+
+### Amazon Bedrock Integration (Framework)
+```python
+from src.bedrock_forecasting import BedrockForecastingEngine
+
+# Initialize Bedrock engine (framework only)
+bedrock_engine = BedrockForecastingEngine()
+
+# Generate advanced forecast using Claude 3
+forecast = bedrock_engine.forecast_with_bedrock(
+    symbol='GOLD',
+    historical_data=price_data,
+    horizon=30,
+    model_name='claude'
+)
+
+print(f"Predictions: {forecast.predictions}")
+print(f"Explanation: {forecast.model_explanation}")
+print(f"Risk Assessment: {forecast.risk_assessment}")
+```
+
+## 📡 API Endpoints
+
+### Core Forecasting APIs
+```bash
+# Generate price forecast
+POST /api/v1/forecast/gold
+POST /api/v1/forecast/silver  
+POST /api/v1/forecast/etf
+
+# Get available models
+GET /api/v1/forecast/models
+```
+
+### Pricing Intelligence APIs
+```bash
+# Get pricing recommendation
+POST /api/v1/pricing/recommend
+
+# Get pricing analysis
+GET /api/v1/pricing/analysis/{symbol}
+
+# Generate pricing report
+GET /api/v1/pricing/report
+```
+
+### Competitive Pricing APIs
+```bash
+# Compare prices by product name
+GET /api/v1/price-comparison/{product_name}
+
+# Compare prices by product ID
+GET /api/v1/price-comparison/product/{product_id}
+
+# Get available products
+GET /api/v1/price-comparison/products
+
+# Get best deals
+GET /api/v1/price-comparison/best-deals?limit=10
+
+# Get platform summary
+GET /api/v1/price-comparison/platforms/summary
+```
+
+### Market Copilot APIs
+```bash
+# Query the AI assistant
+POST /api/v1/copilot/query
+
+# Get detailed insights
+GET /api/v1/copilot/insights?query={query}
+
+# Get conversation history
+GET /api/v1/copilot/history
+
+# Get query suggestions
+GET /api/v1/copilot/suggestions
+```
+
+### Document Processing APIs
+```bash
+# Parse document content
+POST /api/v1/documents/parse
+
+# Upload and parse document
+POST /api/v1/documents/upload
+
+# Get document analysis
+GET /api/v1/documents/{document_id}
+```
+
+### System APIs
+```bash
+# Health check
+GET /health
+
+# System information
+GET /api/v1/system/info
+
+# Data status
+GET /api/v1/data/status
+
+# Reload data
+POST /api/v1/data/reload
 ```
 
 ## 🔍 Troubleshooting

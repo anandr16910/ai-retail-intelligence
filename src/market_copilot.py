@@ -352,17 +352,22 @@ class ResponseGenerator:
 class MarketCopilot:
     """Main conversational AI engine for market queries."""
     
-    def __init__(self):
+    def __init__(self, competitive_pricing_copilot=None):
         """Initialize market copilot."""
         self.query_processor = QueryProcessor()
         self.response_generator = ResponseGenerator()
         self.conversation_history = []
         self.context_data = {}
         self.session_id = None
+        self.competitive_pricing_copilot = competitive_pricing_copilot
         
     def process_query(self, query: str, context: Dict[str, Any] = None) -> str:
         """Process a user query and return a response."""
         try:
+            # Check if this is a competitive pricing query
+            if self.competitive_pricing_copilot and self._is_pricing_query(query):
+                return self.competitive_pricing_copilot.process_pricing_query(query)
+            
             # Generate unique query ID
             query_id = f"q_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{len(self.conversation_history)}"
             
@@ -400,6 +405,17 @@ class MarketCopilot:
         except Exception as e:
             error_response = f"I apologize, but I encountered an error processing your query: {str(e)}"
             return error_response
+    
+    def _is_pricing_query(self, query: str) -> bool:
+        """Check if query is related to competitive pricing."""
+        pricing_keywords = [
+            'compare prices', 'price comparison', 'cheapest', 'best deal', 
+            'lowest price', 'highest price', 'save money', 'amazon', 
+            'flipkart', 'jiomart', 'blinkit', 'zepto', 'dmart'
+        ]
+        
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in pricing_keywords)
     
     def update_context(self, new_data: Dict[str, Any]) -> None:
         """Update the context data with new information."""
