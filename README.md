@@ -1228,6 +1228,6 @@ For issues, questions, or contributions:
 
 ---
 
-**Built with ❤️ for AI for Bharat Hackathon**
+**Built with ❤️ by Anand Rajgopalan in Kiro for AWS AI for Bharat Hackathon**
 
 *Empowering retail and commerce with intelligent market insights*
