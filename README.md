@@ -607,7 +607,7 @@ from src.competitive_pricing import CompetitivePricingEngine
 pricing_engine = CompetitivePricingEngine()
 
 # Compare prices for a product
-comparison = pricing_engine.compare_prices("P001")  # Basmati Rice 5kg
+comparison = pricing_engine.compare_prices("P006")  # Godrej Single Door Fridge
 print(f"Product: {comparison.product_name}")
 print(f"Lowest price: ₹{comparison.lowest_price} ({comparison.lowest_platform})")
 print(f"Highest price: ₹{comparison.highest_price} ({comparison.highest_platform})")
@@ -618,6 +618,21 @@ print(f"Recommendation: {comparison.recommendation}")
 deals = pricing_engine.get_best_deals(5)
 for deal in deals:
     print(f"{deal['product_name']}: Save ₹{deal['savings_amount']:.2f}")
+```
+
+#### Real Customer Scenario Example:
+```
+🔍 Customer wants: Godrej Single Door Fridge
+
+Platform        Price (₹)
+--------------------------------
+Zepto             16,299   ← Cheapest (Save ₹1,491)
+Amazon            17,299
+JioMart           17,500  
+Flipkart          17,790   ← Highest
+
+Variation: 9% difference between highest and lowest
+Recommendation: Buy from Zepto to save ₹1,491 (9.1%)
 ```
 
 ### Amazon Bedrock Integration (Framework)
