@@ -37,26 +37,37 @@ A comprehensive AI-powered platform for market intelligence, demand forecasting,
 ├─────────────────────────────────────────────────────────────┤
 │                     FastAPI Gateway                         │
 │  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
-│  │ Forecasting │   Pricing   │  Document   │   Market    │  │
-│  │ Endpoints   │ Endpoints   │ Endpoints   │  Copilot    │  │
+│  │ Forecasting │Competitive  │  Document   │   Market    │  │
+│  │ Endpoints   │Pricing APIs │ Endpoints   │  Copilot    │  │
 │  └─────────────┴─────────────┴─────────────┴─────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
 │                    Service Layer                            │
 │  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
-│  │Forecasting  │   Pricing   │  Document   │   Market    │  │
-│  │   Engine    │   Engine    │   Parser    │  Copilot    │  │
+│  │Forecasting  │Competitive  │  Document   │   Market    │  │
+│  │   Engine    │Pricing Eng. │   Parser    │  Copilot    │  │
 │  └─────────────┴─────────────┴─────────────┴─────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
-│                     Model Layer                             │
+│                     AI/ML Layer                             │
 │  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
-│  │   Moving    │   Random    │     LLM     │   Query     │  │
-│  │  Average    │   Forest    │  Service    │ Processor   │  │
+│  │Traditional  │   Bedrock   │     LLM     │  Amazon Q   │  │
+│  │ML Models    │Foundation   │  Service    │(Optional)   │  │
+│  │             │   Models    │             │             │  │
 │  └─────────────┴─────────────┴─────────────┴─────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
 │                     Data Layer                              │
 │  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
-│  │    Data     │    CSV      │   Model     │    Logs     │  │
-│  │   Loader    │   Files     │  Storage    │             │  │
+│  │    Data     │Competitive  │   Model     │    Logs     │  │
+│  │   Loader    │Pricing Data │  Storage    │             │  │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+
+Optional AWS Integration Layer:
+┌─────────────────────────────────────────────────────────────┐
+│                    AWS Services (Optional)                  │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐  │
+│  │   Amazon    │   Amazon    │     AWS     │   Amazon    │  │
+│  │  Bedrock    │     Q       │   Lambda    │     S3      │  │
+│  │(Framework)  │(Framework)  │             │             │  │
 │  └─────────────┴─────────────┴─────────────┴─────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -80,6 +91,7 @@ ai-retail-intelligence/
 │   ├── forecasting_model.py      # ML forecasting models
 │   ├── bedrock_forecasting.py    # Amazon Bedrock integration framework
 │   ├── bedrock_config.py         # Bedrock configuration and settings
+│   ├── amazon_q_extension.py     # Amazon Q integration framework (OPTIONAL)
 │   ├── pricing_engine.py         # Pricing intelligence
 │   ├── competitive_pricing.py    # Multi-platform price comparison
 │   ├── document_parser.py        # LLM-based document analysis
@@ -654,6 +666,140 @@ print(f"Predictions: {forecast.predictions}")
 print(f"Explanation: {forecast.model_explanation}")
 print(f"Risk Assessment: {forecast.risk_assessment}")
 ```
+
+### Amazon Q Optional Integration (Framework)
+```python
+from src.amazon_q_extension import AmazonQIntegrationManager
+
+# Initialize Amazon Q manager (placeholder only)
+q_manager = AmazonQIntegrationManager()
+
+# Check capabilities
+capabilities = q_manager.get_capabilities()
+print(f"Amazon Q Available: {q_manager.is_available()}")
+
+# Business reasoning (mock response)
+market_data = {'platform_prices': {'Amazon': 17999, 'Flipkart': 18490}}
+strategy = q_manager.business_reasoning.analyze_market_strategy(market_data)
+print(f"Strategy: {strategy['strategy_type']}")
+
+# PDF analysis (mock response)
+pdf_analysis = q_manager.pdf_analyzer.analyze_large_pdf("report.pdf")
+print(f"Analysis: {pdf_analysis['executive_summary']}")
+```
+
+## 🔧 Amazon Q Optional Integration
+
+### Overview
+Amazon Q integration provides advanced business reasoning, seller insights, and large PDF analysis capabilities. This is an **OPTIONAL** extension that enhances the platform with enterprise-grade AI capabilities.
+
+**⚠️ Important**: Amazon Q integration is **NOT executed in local builds** and requires AWS credentials and Amazon Q access. The current implementation provides a framework for future integration.
+
+### Capabilities
+
+#### 🧠 Business Reasoning
+- **Market Strategy Analysis**: Advanced strategic insights based on competitive data
+- **Risk Assessment**: Comprehensive risk analysis with mitigation strategies  
+- **Competitive Positioning**: Market position analysis and recommendations
+- **Performance Benchmarking**: Compare against industry standards
+
+#### 📊 Seller Insights
+- **Performance Analysis**: Detailed seller performance metrics and trends
+- **Improvement Opportunities**: AI-powered recommendations for growth
+- **Market Opportunities**: Identification of untapped market segments
+- **Competitive Analysis**: Position analysis vs competitors
+
+#### 📄 Large PDF Analysis
+- **Document Processing**: Handle large financial reports and market studies
+- **Financial Metrics Extraction**: Automated extraction of key financial data
+- **Trend Identification**: Identify market trends from document content
+- **Executive Summaries**: Generate concise summaries of complex documents
+
+### Integration Status
+
+```python
+# Check Amazon Q availability
+from src.amazon_q_extension import AmazonQIntegrationManager
+
+manager = AmazonQIntegrationManager()
+status = manager.get_capabilities()
+
+print(f"Enabled: {status['integration_status']['enabled']}")
+print(f"AWS Credentials Required: {status['integration_status']['aws_credentials_required']}")
+print(f"Local Build Compatible: {status['integration_status']['local_build_compatible']}")
+```
+
+### Framework Components
+
+#### 1. Business Reasoning Module
+```python
+# Market strategy analysis
+strategy_analysis = manager.business_reasoning.analyze_market_strategy({
+    'platform_prices': {'Amazon': 17999, 'Flipkart': 18490, 'Zepto': 16999},
+    'product_category': 'electronics',
+    'market_segment': 'home_appliances'
+})
+
+# Returns strategic insights and recommendations
+```
+
+#### 2. PDF Analyzer Module  
+```python
+# Large document analysis
+pdf_analysis = manager.pdf_analyzer.analyze_large_pdf(
+    pdf_path="market_report.pdf",
+    analysis_type="market_intelligence"
+)
+
+# Extract financial metrics
+metrics = manager.pdf_analyzer.extract_financial_metrics(pdf_content)
+```
+
+#### 3. Integration Manager
+```python
+# Process business queries
+response = manager.process_business_query(
+    "What pricing strategy should we adopt for electronics?",
+    context={'market_data': competitive_data}
+)
+```
+
+### Future Implementation
+
+When AWS credentials and Amazon Q access are available, the framework will support:
+
+1. **Real-time Business Intelligence**: Live market analysis and strategic recommendations
+2. **Advanced Document Processing**: Handle multi-hundred page financial reports
+3. **Predictive Analytics**: Forecast market trends and business outcomes
+4. **Automated Insights**: Generate executive summaries and action items
+
+### Configuration
+
+```bash
+# Environment variables (when enabled)
+export AWS_ACCESS_KEY_ID="your_access_key"
+export AWS_SECRET_ACCESS_KEY="your_secret_key"
+export AMAZON_Q_APPLICATION_ID="your_q_app_id"
+export AMAZON_Q_REGION="us-east-1"
+```
+
+### API Endpoints (Future)
+
+```bash
+# Business reasoning
+POST /api/v1/amazon-q/business-analysis
+POST /api/v1/amazon-q/market-strategy
+
+# Seller insights  
+POST /api/v1/amazon-q/seller-analysis
+GET /api/v1/amazon-q/performance-insights
+
+# PDF analysis
+POST /api/v1/amazon-q/pdf-analysis
+POST /api/v1/amazon-q/extract-metrics
+```
+
+**Note**: All Amazon Q functionality currently returns placeholder responses for demonstration purposes. Real integration requires AWS setup and Amazon Q access.
 
 ## 📡 API Endpoints
 
