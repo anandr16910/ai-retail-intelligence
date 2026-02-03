@@ -2,6 +2,12 @@
 
 A comprehensive AI-powered platform for market intelligence, demand forecasting, and pricing optimization, specifically designed for precious metals (gold/silver coins) and popular Indian ETFs. Built for the AI for Bharat Hackathon.
 
+**🇮🇳 Current Indian Market Integration (February 2026):**
+- **24K Gold**: ₹1.3-1.6 Lakh per 10 grams (₹130,000-160,000)
+- **Silver**: ₹2.8-3.7 Lakh per kg (₹280,000-370,000)
+- **GOLDBEES ETF**: ₹140-170 per unit
+- **Market Features**: GST integration, festival effects, Indian trading patterns
+
 ## 🚀 Features
 
 ### Core Capabilities
@@ -111,6 +117,31 @@ ai-retail-intelligence/
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
+- Python 3.8+
+- pip package manager
+- Git
+
+### Quick Installation
+
+```bash
+# Clone repository
+git clone https://github.com/anandr16910/ai-retail-intelligence.git
+cd ai-retail-intelligence
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Generate current Indian market data
+python generate_indian_prices.py
+
+# Verify data generation
+python check_indian_prices.py
+
+# Start services (automated)
+python restart_services.py
+```
+
+### Manual Installation
 - Python 3.8 or higher
 - pip (Python package manager)
 
@@ -501,24 +532,27 @@ STRATEGIES = {
 
 ## 📊 Sample Data
 
-The platform includes realistic sample datasets:
+The platform includes realistic sample datasets with current Indian market pricing:
 
 ### Gold Prices (gold_prices.csv)
-- **Period**: 2020-2024 (4 years)
-- **Records**: ~1,460 daily prices
-- **Features**: Date, Open, High, Low, Close, Volume
-- **Patterns**: Upward trend with seasonal variations
+- **Current Market Rate**: ₹1.3-1.6 Lakh per 10 grams (24K)
+- **Period**: Last 90 days with current Indian market patterns
+- **Records**: 90 daily prices with realistic OHLC data
+- **Features**: Date, Open, High, Low, Close, Volume with Indian market characteristics
+- **Patterns**: Festival season effects, GST considerations, trading center dynamics
 
 ### Silver Prices (silver_prices.csv)
-- **Period**: 2020-2024 (4 years)
-- **Records**: ~1,460 daily prices
-- **Features**: Date, Open, High, Low, Close, Volume
-- **Patterns**: Higher volatility than gold, correlated movements
+- **Current Market Rate**: ₹2.8-3.7 Lakh per kg
+- **Period**: Last 90 days with current Indian market patterns  
+- **Records**: 90 daily prices with realistic OHLC data
+- **Features**: Date, Open, High, Low, Close, Volume with higher volatility
+- **Patterns**: Industrial demand patterns, festival season impacts
 
 ### Indian ETF Prices (etf_prices.csv)
-- **Period**: 2020-2024 (4 years)
-- **ETFs**: NIFTYBEES, GOLDBEES, BANKBEES, JUNIORBEES
-- **Records**: ~5,840 total records
+- **Current Market Levels**: GOLDBEES ₹140-170, NIFTYBEES ₹280-320
+- **Period**: Last 90 days reflecting 2026 market conditions
+- **ETFs**: NIFTYBEES, GOLDBEES, BANKBEES, JUNIORBEES, LIQUIDBEES, PSUBNKBEES
+- **Records**: 540 total records (6 ETFs × 90 days)
 - **Features**: Date, Symbol, Open, High, Low, Close, Volume
 
 ## 🤖 Machine Learning Models
@@ -686,6 +720,81 @@ print(f"Strategy: {strategy['strategy_type']}")
 # PDF analysis (mock response)
 pdf_analysis = q_manager.pdf_analyzer.analyze_large_pdf("report.pdf")
 print(f"Analysis: {pdf_analysis['executive_summary']}")
+```
+
+## 🔧 Data Generation & Management Utilities
+
+The platform includes comprehensive utilities for managing Indian market data:
+
+### Indian Price Data Generation (`generate_indian_prices.py`)
+
+Generate realistic Indian precious metals price data with current market rates:
+
+```bash
+# Generate 90 days of current Indian market data
+python generate_indian_prices.py
+
+# Generate specific duration
+python generate_indian_prices.py --days 180
+
+# Generate 22K gold data
+python generate_indian_prices.py --gold-type 22K
+```
+
+**Features:**
+- Current Indian market rates (₹1.3-1.6L gold, ₹2.8-3.7L silver)
+- Festival season effects and salary cycle impacts
+- Realistic volatility patterns for Indian markets
+- OHLC data with proper price relationships
+- ETF data reflecting current market levels
+
+### Price Verification (`check_indian_prices.py`)
+
+Verify current price data and market alignment:
+
+```bash
+python check_indian_prices.py
+```
+
+**Output:**
+```
+🇮🇳 Current Indian Precious Metals Prices
+=============================================
+🥇 24K Gold (per 10 grams):
+   Current Price: ₹1,60,579.29
+   Date: 2026-02-03
+   Change: ₹+1,884.66 (+1.19%)
+
+🥈 Silver (per kg):
+   Current Price: ₹3,28,726.43
+   Date: 2026-02-03
+   Change: ₹-9,932.08 (-2.93%)
+```
+
+### Service Management (`restart_services.py`)
+
+Automated service restart and data refresh:
+
+```bash
+# Restart all services with fresh data
+python restart_services.py
+
+# Stop all services
+python restart_services.py --stop
+```
+
+**Features:**
+- Automatic process management
+- Data validation and verification
+- Service health checks
+- Port conflict resolution
+
+### Data Pipeline Testing (`test_data_loading.py`)
+
+Validate data loading and processing:
+
+```bash
+python test_data_loading.py
 ```
 
 ## 🎨 Web Dashboard (Sample Implementation)
