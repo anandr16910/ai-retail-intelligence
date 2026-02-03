@@ -4,6 +4,12 @@
 
 The AI for Retail, Commerce & Market Intelligence solution is a comprehensive AI platform designed for the AI for Bharat Hackathon. This system specializes in price trend forecasting for precious metals (gold/silver coins) and popular Indian ETFs, providing market intelligence and pricing optimization capabilities. The platform leverages machine learning models and natural language processing to analyze market trends, predict price movements, and extract insights from financial documents.
 
+**Current Indian Market Context (February 2026):**
+- 24K Gold: ₹1.3-1.6 Lakh per 10 grams (₹130,000-160,000)
+- Silver: ₹2.8-3.7 Lakh per kg (₹280,000-370,000)
+- GOLDBEES ETF: ₹140-170 per unit
+- All pricing data reflects realistic Indian market conditions with proper INR currency formatting
+
 ## Glossary
 
 - **System**: The AI for Retail, Commerce & Market Intelligence platform
@@ -15,9 +21,9 @@ The AI for Retail, Commerce & Market Intelligence solution is a comprehensive AI
 - **API_Gateway**: FastAPI-based interface for external system integration
 - **Competitive_Pricing_Engine**: Multi-platform price comparison and analysis component
 - **Bedrock_Forecasting_Engine**: Amazon Bedrock foundation model integration framework
-- **Gold_Price_Data**: Sample CSV data containing historical gold price information
-- **Silver_Price_Data**: Sample CSV data containing historical silver price information
-- **ETF_Price_Data**: Sample CSV data containing popular Indian ETF price information
+- **Gold_Price_Data**: Sample CSV data containing historical gold price information with current Indian market rates (₹1.3-1.6 Lakh per 10g)
+- **Silver_Price_Data**: Sample CSV data containing historical silver price information with current Indian market rates (₹2.8-3.7 Lakh per kg)
+- **ETF_Price_Data**: Sample CSV data containing popular Indian ETF price information with realistic 2026 market levels
 - **Competitive_Pricing_Data**: Sample CSV data with multi-platform product pricing across Indian e-commerce platforms
 - **LLM_Service**: Mock/inference-ready LLM service compatible with AWS Bedrock
 - **Foundation_Models**: Amazon Bedrock models including Claude 3 Sonnet/Haiku and Titan Text
@@ -246,3 +252,17 @@ The AI for Retail, Commerce & Market Intelligence solution is a comprehensive AI
 4. THE Data_Loader SHALL preprocess competitive pricing data for analysis and comparison
 5. THE System SHALL support multiple product categories with representative pricing patterns
 6. THE Competitive_Pricing_Data SHALL include sufficient historical data for trend analysis
+
+### Requirement 18: Current Indian Market Price Accuracy
+
+**User Story:** As an Indian consumer and trader, I want the platform to reflect current Indian market prices for gold and silver, so that I can make informed decisions based on realistic market conditions.
+
+#### Acceptance Criteria
+
+1. THE System SHALL generate gold price data reflecting current Indian market rates of ₹1.3-1.6 Lakh per 10 grams for 24K gold
+2. THE System SHALL generate silver price data reflecting current Indian market rates of ₹2.8-3.7 Lakh per kg
+3. WHEN price data is generated, THE System SHALL include proper Indian market characteristics including GST, making charges, and festival season effects
+4. THE System SHALL provide ETF price data that reflects current 2026 market levels with GOLDBEES around ₹140-170 per unit
+5. THE Data_Generator SHALL create realistic price volatility patterns consistent with Indian precious metals markets
+6. WHEN displaying prices, THE System SHALL format all amounts in Indian Rupees (₹) with appropriate comma separators for lakhs and crores
+7. THE System SHALL include market context explaining Indian precious metals trading centers (Mumbai, Delhi, Chennai) and market dynamics

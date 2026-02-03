@@ -6,14 +6,25 @@ The AI for Retail, Commerce & Market Intelligence platform is a Python-based sol
 
 The platform follows a modular architecture with clear separation of concerns, enabling easy maintenance and scalability. The core system processes historical price data from CSV files, applies machine learning algorithms for forecasting, and provides intelligent pricing recommendations through a FastAPI-based REST interface.
 
+**Current Indian Market Integration (February 2026):**
+- **24K Gold Prices**: ₹1,30,000 - ₹1,60,000 per 10 grams (~₹1.3-1.6 Lakh)
+- **Silver Prices**: ₹2,80,000 - ₹3,70,000 per kg (~₹2.8-3.7 Lakh)  
+- **GOLDBEES ETF**: ₹140-170 per unit reflecting higher gold prices
+- **Market Characteristics**: Includes GST (3%), making charges, festival season effects, and Indian trading patterns
+- **Currency Formatting**: Proper INR display with lakh/crore notation
+- **Trading Centers**: Mumbai, Delhi, Chennai market dynamics incorporated
+
 ## Architecture
 
 The system follows a layered architecture pattern with the following key layers:
 
 ### Data Layer
-- **CSV Data Storage**: Sample datasets stored in `/data` directory
+- **CSV Data Storage**: Sample datasets stored in `/data` directory with current Indian market pricing
 - **Data Loading**: Centralized data loading and validation through `data_loader.py`
 - **Data Preprocessing**: Cleaning, normalization, and feature engineering
+- **Indian Price Generation**: Realistic Indian market data generation via `generate_indian_prices.py`
+- **Price Verification**: Data validation and testing utilities (`check_indian_prices.py`, `test_data_loading.py`)
+- **Service Management**: Automated restart and refresh capabilities (`restart_services.py`)
 
 ### Model Layer
 - **Forecasting Engine**: Machine learning models for price prediction (`forecasting_model.py`)
@@ -109,6 +120,40 @@ class DataLoader:
 - Input: CSV file paths
 - Output: Validated and preprocessed pandas DataFrames
 - Error Handling: Custom exceptions for data validation failures
+
+### Indian Price Data Generation (`generate_indian_prices.py`)
+
+**Purpose**: Generate realistic Indian precious metals price data with current market rates and characteristics.
+
+**Key Features**:
+- **Current Market Rates**: 24K Gold ₹1.55 Lakh per 10g, Silver ₹3.2 Lakh per kg
+- **Indian Market Patterns**: Festival season effects, salary cycle impacts, weekly trading patterns
+- **Realistic Volatility**: Gold 1.5%, Silver 2.2% with Indian market characteristics
+- **OHLC Generation**: Complete open, high, low, close data with proper relationships
+- **Volume Simulation**: Realistic trading volumes for Indian markets
+- **ETF Integration**: GOLDBEES, NIFTYBEES, BANKBEES with current market levels
+
+**Key Functions**:
+```python
+def create_indian_gold_data(days: int, gold_type: str) -> pd.DataFrame
+def create_indian_silver_data(days: int) -> pd.DataFrame  
+def create_indian_etf_data(days: int) -> pd.DataFrame
+def generate_realistic_indian_prices(start_price: float, days: int, volatility: float) -> List[float]
+```
+
+### Price Verification Utilities
+
+**Purpose**: Validate and test the generated Indian price data.
+
+**Components**:
+- `check_indian_prices.py`: Quick price verification and current market comparison
+- `test_data_loading.py`: Automated testing of data loading functionality
+- `restart_services.py`: Service management and data refresh automation
+
+**Key Features**:
+- Real-time price validation against expected Indian market ranges
+- Automated service restart for data refresh
+- Comprehensive testing of data pipeline integrity
 
 ### Forecasting Model Component (`forecasting_model.py`)
 
@@ -670,3 +715,11 @@ tests/
 ### Property 30: Graceful Bedrock Fallback
 *For any* Bedrock service unavailability, the System should gracefully fallback to traditional forecasting methods without service interruption
 **Validates: Requirements 15.7**
+
+### Property 31: Indian Market Price Accuracy
+*For any* generated gold or silver price data, the System should produce prices within current Indian market ranges (₹1.3-1.6 Lakh per 10g gold, ₹2.8-3.7 Lakh per kg silver) with proper INR formatting
+**Validates: Requirements 18.1, 18.2, 18.6**
+
+### Property 32: Indian Market Characteristics Integration
+*For any* price data generation, the System should incorporate realistic Indian market patterns including festival effects, GST considerations, and trading center dynamics
+**Validates: Requirements 18.3, 18.7**
