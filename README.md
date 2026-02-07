@@ -653,7 +653,7 @@ from src.competitive_pricing import CompetitivePricingEngine
 pricing_engine = CompetitivePricingEngine()
 
 # Compare prices for a product
-comparison = pricing_engine.compare_prices("P006")  # Godrej Single Door Fridge
+comparison = pricing_engine.compare_prices("P007")  # Borges Olive Oil
 print(f"Product: {comparison.product_name}")
 print(f"Lowest price: ₹{comparison.lowest_price} ({comparison.lowest_platform})")
 print(f"Highest price: ₹{comparison.highest_price} ({comparison.highest_platform})")
@@ -664,7 +664,17 @@ print(f"Recommendation: {comparison.recommendation}")
 deals = pricing_engine.get_best_deals(5)
 for deal in deals:
     print(f"{deal['product_name']}: Save ₹{deal['savings_amount']:.2f}")
+
+# Get product list
+products = pricing_engine.get_product_list()
+print(f"Total products tracked: {len(products)}")
 ```
+
+#### Available Products (16 categories):
+- **P001-P006**: Groceries & Appliances (Rice, Salt, Milk, Noodles, Bread, Fridge)
+- **P007-P008**: Olive Oils (Borges, Figaro) - 2-year price history showing 33% decline
+- **P009-P011**: Cooking Oils & Pulses (Sunflower, Mustard, Toor Dal)
+- **P012-P016**: Personal Care & Household (Shampoo, Detergent, Dishwash, Tea, Toothpaste)
 
 #### Real Customer Scenario Example:
 ```
