@@ -38,8 +38,9 @@ try:
     from src.document_parser import DocumentParser
     from src.data_loader import DataLoader
     from src.amazon_q_extension import AmazonQIntegrationManager
-except ImportError:
-    st.error("Unable to import platform modules. Please ensure the dashboard is run from the project root.")
+    from dashboard.realtime_client import get_realtime_client
+except ImportError as e:
+    st.error(f"Unable to import platform modules: {e}. Please ensure the dashboard is run from the project root.")
     st.stop()
 
 # Page configuration
@@ -91,6 +92,30 @@ st.markdown("""
         background-color: #f5f5f5;
         margin-right: 2rem;
     }
+    .connection-indicator {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        z-index: 1000;
+    }
+    .connection-connected {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .connection-disconnected {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .connection-connecting {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -100,7 +125,9 @@ class DashboardApp:
     def __init__(self):
         """Initialize dashboard components."""
         self.api_base_url = "http://localhost:8000/api/v1"
+        self.websocket_url = "http://localhost:5000"
         self.initialize_components()
+        self.initialize_realtime()
         
     def initialize_components(self):
         """Initialize platform components."""
@@ -117,6 +144,47 @@ class DashboardApp:
             
         except Exception as e:
             st.error(f"Error initializing components: {str(e)}")
+    
+    def initialize_realtime(self):
+        """Initialize real-time WebSocket client."""
+        try:
+            # Initialize session state for real-time data
+            if 'realtime_enabled' not in st.session_state:
+                st.session_state.realtime_enabled = False
+            
+            if 'realtime_prices' not in st.session_state:
+                st.session_state.realtime_prices = {}
+            
+            if 'connection_status' not in st.session_state:
+                st.session_state.connection_status = 'disconnected'
+            
+            # Try to get real-time client
+            try:
+                self.realtime_client = get_realtime_client(self.websocket_url)
+                
+                # Register callbacks
+                def on_price_update(data):
+                    st.session_state.realtime_prices = data.get('data', {})
+                
+                def on_connection_status(data):
+                    st.session_state.connection_status = data.get('status', 'unknown')
+                
+                self.realtime_client.register_callback('price_update', on_price_update)
+                self.realtime_client.register_callback('connection_status', on_connection_status)
+                
+                # Check if connected
+                if self.realtime_client.is_connected():
+                    st.session_state.realtime_enabled = True
+                    st.session_state.connection_status = 'connected'
+                
+            except Exception as e:
+                st.warning(f"Real-time updates unavailable: {str(e)}")
+                self.realtime_client = None
+                st.session_state.realtime_enabled = False
+        
+        except Exception as e:
+            st.warning(f"Could not initialize real-time features: {str(e)}")
+            self.realtime_client = None
             
     def load_sample_data(self):
         """Load sample data for dashboard."""
@@ -138,25 +206,41 @@ class DashboardApp:
             self.silver_data = all_data.get('silver', pd.DataFrame())
             self.etf_data = all_data.get('etf', pd.DataFrame())
             
+            # Store in session state for persistence
+            st.session_state['gold_data'] = self.gold_data
+            st.session_state['silver_data'] = self.silver_data
+            st.session_state['etf_data'] = self.etf_data
+            st.session_state['data_loaded'] = True
+            
             # Log current prices for debugging
             if not self.gold_data.empty and 'close' in self.gold_data.columns:
                 current_gold = self.gold_data['close'].iloc[-1]
                 print(f"DEBUG: Loaded gold price: ₹{current_gold:.2f}")
+                st.session_state['current_gold_price'] = current_gold
             
             if not self.silver_data.empty and 'close' in self.silver_data.columns:
                 current_silver = self.silver_data['close'].iloc[-1]
                 print(f"DEBUG: Loaded silver price: ₹{current_silver:.2f}")
+                st.session_state['current_silver_price'] = current_silver
             
         except Exception as e:
-            st.warning(f"Could not load all sample data: {str(e)}")
+            st.error(f"Error loading data: {str(e)}")
+            import traceback
+            st.error(traceback.format_exc())
             self.products = []
             self.gold_data = pd.DataFrame()
             self.silver_data = pd.DataFrame()
             self.etf_data = pd.DataFrame()
+            st.session_state['data_loaded'] = False
 
     def render_sidebar(self):
         """Render sidebar navigation."""
         st.sidebar.markdown("## 🛒 AI Retail Intelligence")
+        st.sidebar.markdown("---")
+        
+        # Real-time connection status
+        self.render_connection_status()
+        
         st.sidebar.markdown("---")
         
         # Navigation
@@ -200,7 +284,52 @@ class DashboardApp:
             st.sidebar.success("Data refreshed!")
             st.rerun()
         
-        return page.split(" ", 1)[1]  # Remove emoji from page name
+        # Show data status
+        if st.session_state.get('data_loaded'):
+            st.sidebar.success("✅ Data Loaded")
+            if st.session_state.get('current_gold_price'):
+                st.sidebar.info(f"Gold: ₹{st.session_state['current_gold_price']:,.2f}")
+            if st.session_state.get('current_silver_price'):
+                st.sidebar.info(f"Silver: ₹{st.session_state['current_silver_price']:,.2f}")
+        else:
+            st.sidebar.error("❌ No Data - Click Refresh")
+        
+        return page.split(" ", 1)[1] if " " in page else page  # Remove emoji from page name
+    
+    def render_connection_status(self):
+        """Render real-time connection status indicator."""
+        st.sidebar.markdown("### 🔌 Real-time Updates")
+        
+        status = st.session_state.get('connection_status', 'disconnected')
+        
+        if status == 'connected':
+            st.sidebar.success("✅ Connected")
+            
+            # Subscribe/unsubscribe controls
+            if self.realtime_client:
+                col1, col2 = st.sidebar.columns(2)
+                
+                with col1:
+                    if st.button("📊 Prices", key="sub_prices"):
+                        self.realtime_client.subscribe('price_updates')
+                        st.sidebar.success("Subscribed to prices")
+                
+                with col2:
+                    if st.button("💰 Deals", key="sub_deals"):
+                        self.realtime_client.subscribe('competitive_pricing')
+                        st.sidebar.success("Subscribed to deals")
+        
+        elif status == 'connecting':
+            st.sidebar.warning("🔄 Connecting...")
+        
+        else:
+            st.sidebar.error("❌ Disconnected")
+            st.sidebar.caption("Start WebSocket server for real-time updates")
+            
+            if st.sidebar.button("🔌 Retry Connection"):
+                if self.realtime_client:
+                    self.realtime_client.connect()
+                    st.rerun()
 
     def render_overview(self):
         """Render dashboard overview page."""
@@ -217,7 +346,21 @@ class DashboardApp:
             )
         
         with col2:
-            if not self.gold_data.empty and 'close' in self.gold_data.columns:
+            # Use real-time data if available, otherwise use loaded data
+            if st.session_state.get('realtime_enabled') and st.session_state.get('realtime_prices'):
+                realtime_prices = st.session_state.realtime_prices
+                if 'gold' in realtime_prices:
+                    current_gold = realtime_prices['gold']['price']
+                    prev_gold = realtime_prices['gold'].get('open', current_gold)
+                    delta_gold = current_gold - prev_gold
+                    st.metric(
+                        label="Gold Price (₹) 🔴 LIVE",
+                        value=f"{current_gold:.2f}",
+                        delta=f"{delta_gold:.2f}"
+                    )
+                else:
+                    st.metric("Gold Price", "No data")
+            elif not self.gold_data.empty and 'close' in self.gold_data.columns:
                 current_gold = self.gold_data['close'].iloc[-1]
                 prev_gold = self.gold_data['close'].iloc[-2] if len(self.gold_data) > 1 else current_gold
                 delta_gold = current_gold - prev_gold
@@ -230,7 +373,21 @@ class DashboardApp:
                 st.metric("Gold Price", "No data")
         
         with col3:
-            if not self.silver_data.empty and 'close' in self.silver_data.columns:
+            # Use real-time data if available, otherwise use loaded data
+            if st.session_state.get('realtime_enabled') and st.session_state.get('realtime_prices'):
+                realtime_prices = st.session_state.realtime_prices
+                if 'silver' in realtime_prices:
+                    current_silver = realtime_prices['silver']['price']
+                    prev_silver = realtime_prices['silver'].get('open', current_silver)
+                    delta_silver = current_silver - prev_silver
+                    st.metric(
+                        label="Silver Price (₹) 🔴 LIVE",
+                        value=f"{current_silver:.2f}",
+                        delta=f"{delta_silver:.2f}"
+                    )
+                else:
+                    st.metric("Silver Price", "No data")
+            elif not self.silver_data.empty and 'close' in self.silver_data.columns:
                 current_silver = self.silver_data['close'].iloc[-1]
                 prev_silver = self.silver_data['close'].iloc[-2] if len(self.silver_data) > 1 else current_silver
                 delta_silver = current_silver - prev_silver

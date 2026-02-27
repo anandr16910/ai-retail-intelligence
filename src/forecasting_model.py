@@ -23,6 +23,22 @@ except ImportError:
 from src.exceptions import ModelTrainingError, ForecastingError
 from src.config import settings
 
+# Try to import LSTM forecaster
+try:
+    from src.lstm_forecaster import LSTMForecaster
+    LSTM_AVAILABLE = True
+except ImportError:
+    LSTM_AVAILABLE = False
+    print("Warning: LSTM forecaster not available. Install PyTorch to enable LSTM models.")
+
+# Try to import Prophet forecaster
+try:
+    from src.prophet_forecaster import ProphetForecaster
+    PROPHET_AVAILABLE = True
+except ImportError:
+    PROPHET_AVAILABLE = False
+    print("Warning: Prophet forecaster not available. Install prophet to enable Prophet models.")
+
 
 @dataclass
 class ForecastResult:
@@ -328,6 +344,178 @@ class RandomForestModel(TimeSeriesModel):
             return {'mae': float('inf'), 'rmse': float('inf'), 'r2': -1.0, 'accuracy': 0.0}
 
 
+class ProphetModel(TimeSeriesModel):
+    """Facebook Prophet model wrapper for time series forecasting."""
+    
+    def __init__(self, seasonality_mode: str = 'multiplicative',
+                 changepoint_prior_scale: float = 0.05,
+                 include_indian_holidays: bool = True,
+                 yearly_seasonality: bool = True,
+                 weekly_seasonality: bool = True):
+        """Initialize Prophet model wrapper.
+        
+        Args:
+            seasonality_mode: 'additive' or 'multiplicative' seasonality
+            changepoint_prior_scale: Flexibility of trend changes
+            include_indian_holidays: Include Indian market holiday calendar
+            yearly_seasonality: Enable yearly seasonality
+            weekly_seasonality: Enable weekly seasonality
+        """
+        super().__init__("Facebook Prophet")
+        
+        if not PROPHET_AVAILABLE:
+            raise ModelTrainingError("Prophet forecaster not available. Please install prophet.")
+        
+        self.prophet_forecaster = ProphetForecaster(
+            seasonality_mode=seasonality_mode,
+            changepoint_prior_scale=changepoint_prior_scale,
+            include_indian_holidays=include_indian_holidays,
+            yearly_seasonality=yearly_seasonality,
+            weekly_seasonality=weekly_seasonality,
+            daily_seasonality=False
+        )
+        self.training_info = None
+    
+    def fit(self, data: pd.DataFrame, target_column: str = 'close') -> None:
+        """Train the Prophet model."""
+        try:
+            if target_column not in data.columns:
+                raise ModelTrainingError(f"Target column '{target_column}' not found in data")
+            
+            # Train the Prophet forecaster
+            self.training_info = self.prophet_forecaster.fit(data, target_column)
+            self.is_trained = True
+            
+        except Exception as e:
+            raise ModelTrainingError(f"Failed to train Prophet model: {str(e)}")
+    
+    def predict(self, horizon: int) -> Tuple[List[float], Dict[str, List[float]]]:
+        """Generate predictions using Prophet."""
+        if not self.is_trained:
+            raise ForecastingError("Model must be trained before making predictions")
+        
+        try:
+            predictions, confidence_intervals = self.prophet_forecaster.predict(horizon)
+            return predictions, confidence_intervals
+            
+        except Exception as e:
+            raise ForecastingError(f"Prophet prediction failed: {str(e)}")
+    
+    def evaluate(self, test_data: pd.DataFrame, target_column: str = 'close') -> Dict[str, float]:
+        """Evaluate Prophet model performance."""
+        try:
+            if not self.is_trained:
+                return {'mae': float('inf'), 'rmse': float('inf'), 'r2': -1.0, 'accuracy': 0.0}
+            
+            metrics = self.prophet_forecaster.evaluate(test_data, target_column)
+            return metrics
+            
+        except Exception as e:
+            return {'mae': float('inf'), 'rmse': float('inf'), 'r2': -1.0, 'accuracy': 0.0}
+    
+    def get_training_info(self) -> Optional[Dict[str, Any]]:
+        """Get training information including changepoints and seasonality."""
+        return self.training_info
+    
+    def get_model_info(self) -> Dict[str, Any]:
+        """Get detailed model information."""
+        return self.prophet_forecaster.get_model_info()
+    
+    def get_changepoint_analysis(self) -> Dict[str, Any]:
+        """Get changepoint detection analysis."""
+        return self.prophet_forecaster.get_changepoint_analysis()
+    
+    def get_seasonality_analysis(self) -> Dict[str, Any]:
+        """Get seasonality detection analysis."""
+        return self.prophet_forecaster.get_seasonality_analysis()
+    
+    def get_holiday_impact(self) -> Dict[str, Any]:
+        """Get holiday impact analysis."""
+        return self.prophet_forecaster.get_holiday_impact()
+
+
+class LSTMModel(TimeSeriesModel):
+    """LSTM neural network model wrapper for time series forecasting."""
+    
+    def __init__(self, sequence_length: int = 60, hidden_size: int = 64,
+                 num_layers: int = 2, dropout: float = 0.2, 
+                 learning_rate: float = 0.001, batch_size: int = 32,
+                 epochs: int = 100, early_stopping_patience: int = 10):
+        """Initialize LSTM model wrapper.
+        
+        Args:
+            sequence_length: Length of input sequences (lookback window)
+            hidden_size: Number of hidden units in LSTM layers
+            num_layers: Number of stacked LSTM layers
+            dropout: Dropout rate for regularization
+            learning_rate: Learning rate for optimizer
+            batch_size: Batch size for training
+            epochs: Maximum number of training epochs
+            early_stopping_patience: Patience for early stopping
+        """
+        super().__init__("LSTM Neural Network")
+        
+        if not LSTM_AVAILABLE:
+            raise ModelTrainingError("LSTM forecaster not available. Please install PyTorch.")
+        
+        self.lstm_forecaster = LSTMForecaster(
+            sequence_length=sequence_length,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout,
+            learning_rate=learning_rate,
+            batch_size=batch_size,
+            epochs=epochs,
+            early_stopping_patience=early_stopping_patience
+        )
+        self.training_info = None
+    
+    def fit(self, data: pd.DataFrame, target_column: str = 'close') -> None:
+        """Train the LSTM model."""
+        try:
+            if target_column not in data.columns:
+                raise ModelTrainingError(f"Target column '{target_column}' not found in data")
+            
+            # Train the LSTM forecaster
+            self.training_info = self.lstm_forecaster.fit(data, target_column)
+            self.is_trained = True
+            
+        except Exception as e:
+            raise ModelTrainingError(f"Failed to train LSTM model: {str(e)}")
+    
+    def predict(self, horizon: int) -> Tuple[List[float], Dict[str, List[float]]]:
+        """Generate predictions using LSTM."""
+        if not self.is_trained:
+            raise ForecastingError("Model must be trained before making predictions")
+        
+        try:
+            predictions, confidence_intervals = self.lstm_forecaster.predict(horizon)
+            return predictions, confidence_intervals
+            
+        except Exception as e:
+            raise ForecastingError(f"LSTM prediction failed: {str(e)}")
+    
+    def evaluate(self, test_data: pd.DataFrame, target_column: str = 'close') -> Dict[str, float]:
+        """Evaluate LSTM model performance."""
+        try:
+            if not self.is_trained:
+                return {'mae': float('inf'), 'rmse': float('inf'), 'r2': -1.0, 'accuracy': 0.0}
+            
+            metrics = self.lstm_forecaster.evaluate(test_data, target_column)
+            return metrics
+            
+        except Exception as e:
+            return {'mae': float('inf'), 'rmse': float('inf'), 'r2': -1.0, 'accuracy': 0.0}
+    
+    def get_training_info(self) -> Optional[Dict[str, Any]]:
+        """Get training information including history and metrics."""
+        return self.training_info
+    
+    def get_model_info(self) -> Dict[str, Any]:
+        """Get detailed model information."""
+        return self.lstm_forecaster.get_model_info()
+
+
 class ModelEvaluator:
     """Evaluate and compare forecasting models."""
     
@@ -399,6 +587,29 @@ class PriceForecastingEngine:
             # Conditional models based on dependencies
             if SKLEARN_AVAILABLE:
                 self.models['random_forest'] = RandomForestModel()
+            
+            # Prophet model (requires prophet library)
+            if PROPHET_AVAILABLE:
+                self.models['prophet'] = ProphetModel(
+                    seasonality_mode='multiplicative',
+                    changepoint_prior_scale=0.05,
+                    include_indian_holidays=True,
+                    yearly_seasonality=True,
+                    weekly_seasonality=True
+                )
+            
+            # LSTM model (requires PyTorch)
+            if LSTM_AVAILABLE:
+                self.models['lstm'] = LSTMModel(
+                    sequence_length=30,  # Reduced from 60 to work with smaller datasets
+                    hidden_size=64,
+                    num_layers=2,
+                    dropout=0.2,
+                    learning_rate=0.001,
+                    batch_size=16,  # Reduced batch size for smaller datasets
+                    epochs=50,  # Reduced epochs for faster training
+                    early_stopping_patience=10
+                )
             
         except Exception as e:
             print(f"Warning: Some models could not be initialized: {str(e)}")
@@ -506,6 +717,12 @@ class PriceForecastingEngine:
     def _save_model(self, model: TimeSeriesModel, symbol: str, model_name: str):
         """Save trained model to disk."""
         try:
+            # LSTM models use their own checkpoint system
+            if isinstance(model, LSTMModel):
+                model.lstm_forecaster.save_model(symbol)
+                return
+            
+            # For other models, use pickle
             model_path = os.path.join(self.model_dir, f"{symbol}_{model_name}.pkl")
             
             model_data = {
@@ -524,6 +741,11 @@ class PriceForecastingEngine:
     def _load_model(self, model: TimeSeriesModel, symbol: str, model_name: str) -> bool:
         """Load trained model from disk."""
         try:
+            # LSTM models use their own checkpoint system
+            if isinstance(model, LSTMModel):
+                return model.lstm_forecaster.load_model(symbol)
+            
+            # For other models, use pickle
             model_path = os.path.join(self.model_dir, f"{symbol}_{model_name}.pkl")
             
             if not os.path.exists(model_path):
@@ -558,7 +780,9 @@ class PriceForecastingEngine:
             'available_models': list(self.models.keys()),
             'trained_symbols': list(self.trained_symbols),
             'dependencies': {
-                'sklearn_available': SKLEARN_AVAILABLE
+                'sklearn_available': SKLEARN_AVAILABLE,
+                'prophet_available': PROPHET_AVAILABLE,
+                'lstm_available': LSTM_AVAILABLE
             },
             'model_details': {}
         }

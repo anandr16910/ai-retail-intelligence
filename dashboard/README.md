@@ -4,6 +4,16 @@ A comprehensive web dashboard built with Streamlit for the AI Retail Intelligenc
 
 ## 🚀 Features
 
+### Real-time Updates (NEW! ⚡)
+- **WebSocket Integration**: Live data streaming without page refresh
+- **Connection Status**: Visual indicators for connection health
+- **Live Price Updates**: Real-time gold, silver, and ETF prices with 🔴 LIVE badges
+- **Subscription Management**: Choose which data streams to receive
+- **Auto-reconnection**: Automatic recovery from connection loss
+- **Efficient Updates**: Bandwidth-optimized selective data streaming
+
+See [REALTIME_FEATURES.md](REALTIME_FEATURES.md) for detailed documentation.
+
 ### Dashboard Pages
 
 #### 🏠 Dashboard Overview
@@ -72,21 +82,30 @@ cd dashboard
 pip install -r requirements.txt
 ```
 
-### Step 2: Start the Main Platform API (Required)
+### Step 2: Start the WebSocket Server (Optional - for Real-time Updates)
+```bash
+# From the dashboard directory
+python run_websocket_server.py
+```
+
+This enables real-time price updates and live data streaming. The dashboard will work without it but won't have real-time features.
+
+### Step 3: Start the Main Platform API (Required)
 ```bash
 # From the project root directory
 python main.py --mode server
 ```
 
-### Step 3: Launch Dashboard
+### Step 4: Launch Dashboard
 ```bash
 # From the dashboard directory
 streamlit run app.py
 ```
 
-### Step 4: Access Dashboard
+### Step 5: Access Dashboard
 Open your browser and navigate to:
 - **Dashboard URL**: http://localhost:8501
+- **WebSocket Server**: http://localhost:5000 (for real-time features)
 - **API Documentation**: http://localhost:8000/docs (main platform)
 
 ## 📊 Dashboard Screenshots & Features
@@ -173,10 +192,14 @@ chart_colors = {
 
 ### Starting the Dashboard
 ```bash
-# Terminal 1: Start main platform
+# Terminal 1: Start WebSocket server (optional, for real-time updates)
+cd dashboard
+python run_websocket_server.py
+
+# Terminal 2: Start main platform
 python main.py --mode server
 
-# Terminal 2: Start dashboard
+# Terminal 3: Start dashboard
 cd dashboard
 streamlit run app.py
 ```

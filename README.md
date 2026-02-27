@@ -21,12 +21,20 @@ A comprehensive AI-powered platform for market intelligence, demand forecasting,
 
 ### Key Components
 - **Data Pipeline**: Automated CSV data loading and preprocessing
-- **ML Models**: Multiple forecasting algorithms (Moving Average, Random Forest)
+- **ML Models**: Multiple forecasting algorithms (Moving Average, Random Forest, LSTM Neural Networks)
 - **Bedrock Integration**: Framework for Claude 3 Sonnet/Haiku and Amazon Titan models
 - **Pricing Strategies**: Conservative, balanced, and aggressive pricing approaches
 - **Competitive Analysis**: Real-time price tracking and savings recommendations
 - **Document Parser**: Extract insights from financial reports and market analysis
 - **Conversational AI**: Natural language interface for market intelligence
+
+### Advanced ML Features (Phase 2)
+- **LSTM Neural Networks**: Deep learning-based time series forecasting with GPU acceleration
+- **Model Checkpointing**: Automatic saving of best models during training
+- **Early Stopping**: Prevents overfitting with intelligent training termination
+- **GPU Support**: CUDA and Apple Silicon (MPS) acceleration for faster training
+- **Configurable Architecture**: Adjustable layers, hidden units, and hyperparameters
+- **See [LSTM Integration Guide](docs/LSTM_INTEGRATION.md) for detailed documentation**
 
 ### New Competitive Pricing Features
 - **Multi-Platform Comparison**: Compare prices across 6 major Indian e-commerce platforms
@@ -1224,7 +1232,8 @@ For issues, questions, or contributions:
 
 ### Phase 2 (Future)
 - ✅ **Web dashboard interface** (Sample implementation available)
-- [ ] Advanced ML models (LSTM, Prophet)
+- ✅ **Advanced ML models** (LSTM Neural Networks with GPU acceleration)
+- [ ] Facebook Prophet integration
 - [ ] Real-time data integration
 - [ ] Advanced analytics and reporting
 - [ ] Multi-language support
