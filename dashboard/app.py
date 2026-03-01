@@ -125,7 +125,7 @@ class DashboardApp:
     def __init__(self):
         """Initialize dashboard components."""
         self.api_base_url = "http://localhost:8000/api/v1"
-        self.websocket_url = "http://localhost:5000"
+        self.websocket_url = "http://localhost:5001"  # Changed from 5000 to 5001
         self.initialize_components()
         self.initialize_realtime()
         
@@ -143,7 +143,9 @@ class DashboardApp:
             self.load_sample_data()
             
         except Exception as e:
-            st.error(f"Error initializing components: {str(e)}")
+            st.error(f"❌ Error initializing components: {str(e)}")
+            import traceback
+            st.error(traceback.format_exc())
     
     def initialize_realtime(self):
         """Initialize real-time WebSocket client."""
@@ -189,18 +191,10 @@ class DashboardApp:
     def load_sample_data(self):
         """Load sample data for dashboard."""
         try:
-            # Clear any cached data first
-            if hasattr(self, 'gold_data'):
-                del self.gold_data
-            if hasattr(self, 'silver_data'):
-                del self.silver_data
-            if hasattr(self, 'etf_data'):
-                del self.etf_data
-            
             # Load pricing data
             self.products = self.pricing_engine.get_product_list()
             
-            # Load market data - force fresh load
+            # Load market data
             all_data = self.data_loader.load_all_data()
             self.gold_data = all_data.get('gold', pd.DataFrame())
             self.silver_data = all_data.get('silver', pd.DataFrame())
@@ -210,21 +204,22 @@ class DashboardApp:
             st.session_state['gold_data'] = self.gold_data
             st.session_state['silver_data'] = self.silver_data
             st.session_state['etf_data'] = self.etf_data
-            st.session_state['data_loaded'] = True
+            st.session_state['products'] = self.products
             
-            # Log current prices for debugging
-            if not self.gold_data.empty and 'close' in self.gold_data.columns:
-                current_gold = self.gold_data['close'].iloc[-1]
-                print(f"DEBUG: Loaded gold price: ₹{current_gold:.2f}")
-                st.session_state['current_gold_price'] = current_gold
-            
-            if not self.silver_data.empty and 'close' in self.silver_data.columns:
-                current_silver = self.silver_data['close'].iloc[-1]
-                print(f"DEBUG: Loaded silver price: ₹{current_silver:.2f}")
-                st.session_state['current_silver_price'] = current_silver
+            # Check if data loaded successfully
+            if not self.gold_data.empty and not self.silver_data.empty:
+                st.session_state['data_loaded'] = True
+                
+                # Store current prices
+                if 'close' in self.gold_data.columns:
+                    st.session_state['current_gold_price'] = self.gold_data['close'].iloc[-1]
+                if 'close' in self.silver_data.columns:
+                    st.session_state['current_silver_price'] = self.silver_data['close'].iloc[-1]
+            else:
+                st.session_state['data_loaded'] = False
             
         except Exception as e:
-            st.error(f"Error loading data: {str(e)}")
+            st.error(f"❌ Error loading data: {str(e)}")
             import traceback
             st.error(traceback.format_exc())
             self.products = []
@@ -232,6 +227,30 @@ class DashboardApp:
             self.silver_data = pd.DataFrame()
             self.etf_data = pd.DataFrame()
             st.session_state['data_loaded'] = False
+    
+    def get_data(self, data_type):
+        """Get data from session state or instance variable."""
+        # Try session state first
+        data = st.session_state.get(f'{data_type}_data', None)
+        if data is not None and not data.empty:
+            return data
+        
+        # Fall back to instance variable
+        if hasattr(self, f'{data_type}_data'):
+            return getattr(self, f'{data_type}_data')
+        
+        return pd.DataFrame()
+    
+    def get_products(self):
+        """Get products list from session state or instance variable."""
+        products = st.session_state.get('products', None)
+        if products is not None:
+            return products
+        
+        if hasattr(self, 'products'):
+            return self.products
+        
+        return []
 
     def render_sidebar(self):
         """Render sidebar navigation."""
@@ -338,10 +357,15 @@ class DashboardApp:
         # Key metrics row
         col1, col2, col3, col4 = st.columns(4)
         
+        # Get data using helper methods
+        products = self.get_products()
+        gold_data = self.get_data('gold')
+        silver_data = self.get_data('silver')
+        
         with col1:
             st.metric(
                 label="Products Tracked",
-                value=len(self.products),
+                value=len(products),
                 delta="6 platforms"
             )
         
@@ -360,9 +384,9 @@ class DashboardApp:
                     )
                 else:
                     st.metric("Gold Price", "No data")
-            elif not self.gold_data.empty and 'close' in self.gold_data.columns:
-                current_gold = self.gold_data['close'].iloc[-1]
-                prev_gold = self.gold_data['close'].iloc[-2] if len(self.gold_data) > 1 else current_gold
+            elif not gold_data.empty and 'close' in gold_data.columns:
+                current_gold = gold_data['close'].iloc[-1]
+                prev_gold = gold_data['close'].iloc[-2] if len(gold_data) > 1 else current_gold
                 delta_gold = current_gold - prev_gold
                 st.metric(
                     label="Gold Price (₹)",
@@ -387,9 +411,9 @@ class DashboardApp:
                     )
                 else:
                     st.metric("Silver Price", "No data")
-            elif not self.silver_data.empty and 'close' in self.silver_data.columns:
-                current_silver = self.silver_data['close'].iloc[-1]
-                prev_silver = self.silver_data['close'].iloc[-2] if len(self.silver_data) > 1 else current_silver
+            elif not silver_data.empty and 'close' in silver_data.columns:
+                current_silver = silver_data['close'].iloc[-1]
+                prev_silver = silver_data['close'].iloc[-2] if len(silver_data) > 1 else current_silver
                 delta_silver = current_silver - prev_silver
                 st.metric(
                     label="Silver Price (₹)",
@@ -1359,6 +1383,10 @@ class DashboardApp:
 
     def run(self):
         """Run the dashboard application."""
+        # Show data status at the top
+        if not st.session_state.get('data_loaded', False):
+            st.warning("⚠️ Data not loaded. Click '🔄 Refresh Data' in the sidebar.")
+        
         # Render sidebar and get selected page
         page = self.render_sidebar()
         
