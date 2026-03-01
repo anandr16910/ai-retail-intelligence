@@ -781,25 +781,61 @@
             document.getElementById('forecastResults').style.display = 'none';
             document.getElementById('submitBtn').disabled = true;
 
+            // Hide any previous errors
+            const errorDiv = document.getElementById('forecastError');
+            if (errorDiv) errorDiv.style.display = 'none';
+
             try {
+                console.log('Sending forecast request:', { asset, horizon, model });
+                
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({ asset, horizon, model })
                 });
 
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error:', errorText);
+                    throw new Error(`API returned status ${response.status}. Please check CloudWatch logs.`);
+                }
 
                 const data = await response.json();
+                console.log('Forecast data received:', data);
                 displayForecastResults(data);
 
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                console.error('Forecast error:', error);
+                showForecastError(error.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('submitBtn').disabled = false;
             }
         });
+
+        function showForecastError(message) {
+            let errorDiv = document.getElementById('forecastError');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'forecastError';
+                errorDiv.style.cssText = 'background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #f5c6cb;';
+                document.getElementById('forecastForm').parentElement.appendChild(errorDiv);
+            }
+            errorDiv.innerHTML = `
+                <strong>⚠️ Error:</strong> ${message}<br><br>
+                <strong>Troubleshooting:</strong><br>
+                • Check your internet connection<br>
+                • Try a different asset or horizon<br>
+                • View CloudWatch logs in AWS Console<br>
+                • API Endpoint: ${API_ENDPOINT}
+            `;
+            errorDiv.style.display = 'block';
+        }
 
         function displayForecastResults(data) {
             const assetNames = { 'GOLD': 'Gold (24K)', 'SILVER': 'Silver', 'ETF': 'Indian ETFs' };
