@@ -546,12 +546,12 @@
                 <div class="chat-container" id="chatContainer">
                     <div class="chat-message assistant">
                         <strong>Market Copilot:</strong>
-                        Hello! I'm your AI Market Copilot. I can help you with:<br><br>
-                        • Price forecasting and trends<br>
-                        • Competitive pricing analysis<br>
-                        • Product comparisons<br>
-                        • Market insights<br><br>
-                        What would you like to know?
+                        Hello! I'm your AI Market Copilot powered by Amazon Bedrock (Claude 3). I can help you with:<br><br>
+                        • Price forecasting and trends (Gold, Silver, ETF)<br>
+                        • Competitive pricing analysis across 6 platforms<br>
+                        • Product comparisons and best deals<br>
+                        • Market insights and data-driven recommendations<br><br>
+                        I have access to real-time market data. What would you like to know?
                     </div>
                 </div>
 
@@ -727,6 +727,9 @@
     <script>
         const API_ENDPOINT = 'https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/forecast';
         const CURRENT_PRICES_ENDPOINT = 'https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/current-prices';
+        const COPILOT_ENDPOINT = 'https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/copilot';
+        
+        let sessionId = `session-${Date.now()}`;
 
         // Navigation
         function showPage(pageId) {
@@ -904,19 +907,42 @@
             addChatMessage('user', message);
             input.value = '';
             
-            // Simulate AI response
-            setTimeout(() => {
-                const response = generateCopilotResponse(message);
-                addChatMessage('assistant', response);
-            }, 1000);
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message assistant';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = '<strong>Market Copilot:</strong> <em>Typing...</em>';
+            document.getElementById('chatContainer').appendChild(typingDiv);
+            
+            // Call real API
+            fetch(COPILOT_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, session_id: sessionId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
+                
+                // Add AI response
+                addChatMessage('assistant', data.response);
+                
+                // Update session ID
+                if (data.session_id) sessionId = data.session_id;
+            })
+            .catch(error => {
+                console.error('Copilot error:', error);
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
+                addChatMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+            });
         }
 
         function sendQuickMessage(message) {
-            addChatMessage('user', message);
-            setTimeout(() => {
-                const response = generateCopilotResponse(message);
-                addChatMessage('assistant', response);
-            }, 1000);
+            document.getElementById('chatInput').value = message;
+            sendMessage();
         }
 
         function addChatMessage(role, content) {
@@ -928,28 +954,12 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function generateCopilotResponse(message) {
-            const lower = message.toLowerCase();
-            
-            if (lower.includes('gold') && lower.includes('trend')) {
-                return 'Gold prices have shown an upward trend over the past 30 days, increasing by approximately 3.2%. Key factors include inflation concerns, geopolitical tensions, and increased demand from central banks. The forecast suggests continued strength with moderate volatility.';
-            } else if (lower.includes('best deal')) {
-                return 'Top 3 best deals right now:<br>1. Godrej Single Door Fridge - Save ₹1,491 (8.1%) on Zepto<br>2. Samsung Washing Machine - Save ₹1,501 (6.1%) on Amazon<br>3. Whirlpool AC - Save ₹1,991 (5.7%) on Flipkart';
-            } else if (lower.includes('compare') && lower.includes('fridge')) {
-                return 'Godrej Single Door Fridge price comparison:<br>• Zepto: ₹16,999 (Best Price) 🏆<br>• Amazon: ₹17,999<br>• Flipkart: ₹18,490 (Highest)<br><br>Recommendation: Buy from Zepto and save ₹1,491 (8.1%)';
-            } else if (lower.includes('market summary')) {
-                return 'Market Summary:<br>• Gold: ₹65,432 (+2.1% this week)<br>• Silver: ₹78,234 (+1.8% this week)<br>• Best savings opportunity: Home appliances (up to 8% savings)<br>• Most competitive platform: Zepto (lowest prices on 4/6 products)<br>• Forecast: Stable to slightly upward trend expected';
-            } else {
-                return 'I can help you with price forecasting, competitive pricing analysis, and market insights. Try asking about gold trends, best deals, or product comparisons!';
-            }
-        }
-
         function clearChat() {
             const container = document.getElementById('chatContainer');
             container.innerHTML = `
                 <div class="chat-message assistant">
                     <strong>Market Copilot:</strong>
-                    Hello! I'm your AI Market Copilot. I can help you with:<br><br>
+                    Hello! I'm your AI Market Copilot powered by Amazon Bedrock. I can help you with:<br><br>
                     • Price forecasting and trends<br>
                     • Competitive pricing analysis<br>
                     • Product comparisons<br>
@@ -957,6 +967,7 @@
                     What would you like to know?
                 </div>
             `;
+            sessionId = `session-${Date.now()}`;
         }
 
         // Document analysis
