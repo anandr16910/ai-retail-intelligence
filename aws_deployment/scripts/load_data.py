@@ -5,11 +5,19 @@ import boto3
 import pandas as pd
 import argparse
 from datetime import datetime
+from decimal import Decimal
 import sys
 import os
 
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+
+def convert_to_decimal(value):
+    """Convert float to Decimal for DynamoDB"""
+    if pd.isna(value):
+        return Decimal('0')
+    return Decimal(str(value))
 
 
 def load_price_history(region='us-east-1'):
@@ -21,7 +29,7 @@ def load_price_history(region='us-east-1'):
     
     # Load gold prices
     try:
-        gold_df = pd.read_csv('../../data/gold_prices.csv')
+        gold_df = pd.read_csv('../data/gold_prices.csv')
         print(f"  Loading {len(gold_df)} gold price records...")
         
         for _, row in gold_df.iterrows():
@@ -29,10 +37,10 @@ def load_price_history(region='us-east-1'):
                 Item={
                     'asset': 'GOLD',
                     'timestamp': str(row['date']),
-                    'open': float(row['open']),
-                    'high': float(row['high']),
-                    'low': float(row['low']),
-                    'close': float(row['close']),
+                    'open': convert_to_decimal(row['open']),
+                    'high': convert_to_decimal(row['high']),
+                    'low': convert_to_decimal(row['low']),
+                    'close': convert_to_decimal(row['close']),
                     'volume': int(row['volume'])
                 }
             )
@@ -42,7 +50,7 @@ def load_price_history(region='us-east-1'):
     
     # Load silver prices
     try:
-        silver_df = pd.read_csv('../../data/silver_prices.csv')
+        silver_df = pd.read_csv('../data/silver_prices.csv')
         print(f"  Loading {len(silver_df)} silver price records...")
         
         for _, row in silver_df.iterrows():
@@ -50,10 +58,10 @@ def load_price_history(region='us-east-1'):
                 Item={
                     'asset': 'SILVER',
                     'timestamp': str(row['date']),
-                    'open': float(row['open']),
-                    'high': float(row['high']),
-                    'low': float(row['low']),
-                    'close': float(row['close']),
+                    'open': convert_to_decimal(row['open']),
+                    'high': convert_to_decimal(row['high']),
+                    'low': convert_to_decimal(row['low']),
+                    'close': convert_to_decimal(row['close']),
                     'volume': int(row['volume'])
                 }
             )
@@ -63,7 +71,7 @@ def load_price_history(region='us-east-1'):
     
     # Load ETF prices
     try:
-        etf_df = pd.read_csv('../../data/etf_prices.csv')
+        etf_df = pd.read_csv('../data/etf_prices.csv')
         print(f"  Loading {len(etf_df)} ETF price records...")
         
         for _, row in etf_df.iterrows():
@@ -71,10 +79,10 @@ def load_price_history(region='us-east-1'):
                 Item={
                     'asset': 'ETF',
                     'timestamp': str(row['date']),
-                    'open': float(row['open']),
-                    'high': float(row['high']),
-                    'low': float(row['low']),
-                    'close': float(row['close']),
+                    'open': convert_to_decimal(row['open']),
+                    'high': convert_to_decimal(row['high']),
+                    'low': convert_to_decimal(row['low']),
+                    'close': convert_to_decimal(row['close']),
                     'volume': int(row.get('volume', 0))
                 }
             )
@@ -91,7 +99,7 @@ def load_competitive_pricing(region='us-east-1'):
     table = dynamodb.Table('CompetitivePricing')
     
     try:
-        pricing_df = pd.read_csv('../../data/competitive_pricing_sample.csv')
+        pricing_df = pd.read_csv('../data/competitive_pricing_sample.csv')
         print(f"  Loading {len(pricing_df)} product records...")
         
         # Group by product
