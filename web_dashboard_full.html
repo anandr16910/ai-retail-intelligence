@@ -726,6 +726,7 @@
 
     <script>
         const API_ENDPOINT = 'https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/forecast';
+        const CURRENT_PRICES_ENDPOINT = 'https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/current-prices';
 
         // Navigation
         function showPage(pageId) {
@@ -734,6 +735,38 @@
             
             document.getElementById(pageId).classList.add('active');
             event.target.classList.add('active');
+        }
+
+        // Fetch and display current prices
+        async function loadCurrentPrices() {
+            try {
+                const response = await fetch(CURRENT_PRICES_ENDPOINT);
+                if (!response.ok) throw new Error('Failed to fetch prices');
+                
+                const data = await response.json();
+                
+                // Update Gold price
+                if (data.gold) {
+                    document.getElementById('gold-price').textContent = `₹${data.gold.price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    const deltaClass = data.gold.change >= 0 ? 'positive' : 'negative';
+                    const deltaSign = data.gold.change >= 0 ? '+' : '';
+                    document.getElementById('gold-delta').textContent = `${deltaSign}₹${data.gold.change.toLocaleString('en-IN')} (${deltaSign}${data.gold.change_percent}%)`;
+                    document.getElementById('gold-delta').className = `metric-delta ${deltaClass}`;
+                }
+                
+                // Update Silver price
+                if (data.silver) {
+                    document.getElementById('silver-price').textContent = `₹${data.silver.price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    const deltaClass = data.silver.change >= 0 ? 'positive' : 'negative';
+                    const deltaSign = data.silver.change >= 0 ? '+' : '';
+                    document.getElementById('silver-delta').textContent = `${deltaSign}₹${data.silver.change.toLocaleString('en-IN')} (${deltaSign}${data.silver.change_percent}%)`;
+                    document.getElementById('silver-delta').className = `metric-delta ${deltaClass}`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading current prices:', error);
+                // Keep placeholder values if API fails
+            }
         }
 
         // Forecasting
@@ -950,12 +983,11 @@
 
         // Initialize dashboard
         window.onload = function() {
-            // Set mock metrics
+            // Load real current prices from API
+            loadCurrentPrices();
+            
+            // Set other metrics
             document.getElementById('products-count').textContent = '6';
-            document.getElementById('gold-price').textContent = '₹65,432';
-            document.getElementById('gold-delta').textContent = '+₹1,234 (1.9%)';
-            document.getElementById('silver-price').textContent = '₹78,234';
-            document.getElementById('silver-delta').textContent = '+₹892 (1.2%)';
             document.getElementById('savings').textContent = '₹1,491';
             document.getElementById('savings-delta').textContent = '8.1%';
         };
