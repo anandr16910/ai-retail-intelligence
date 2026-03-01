@@ -8,12 +8,18 @@ Your AI Retail Intelligence Dashboard is now live and accessible from anywhere!
 **URL:** http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com
 
 **Features:**
-- 📊 Dashboard Overview with real-time metrics
+- 📊 Dashboard Overview with **REAL-TIME** metrics (Feb 2026 data)
 - 📈 Price Forecasting (Gold, Silver, ETF)
 - 💰 Competitive Pricing across 6 platforms
 - 🤖 Market Copilot (AI chat)
 - 📄 Document Analysis
 - ⚙️ Platform Status
+
+### Current Prices (Updated Feb 3, 2026)
+- **Gold:** ₹1,60,579.29 (+₹1,884.66, +1.19%)
+- **Silver:** ₹3,28,726.43 (-₹9,932.08, -2.93%)
+
+These prices are fetched live from your DynamoDB database!
 
 ### Simple Dashboard (Forecasting Only)
 **URL:** http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com/web_dashboard.html
@@ -86,10 +92,11 @@ If you need authentication, you can add:
 
 ## 📊 Backend API
 
-The dashboard connects to your AWS Lambda API:
-- **Endpoint:** https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/forecast
-- **Method:** POST
-- **Powered by:** Amazon Bedrock (Claude 3)
+The dashboard connects to your AWS Lambda APIs:
+- **Forecast Endpoint:** https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/forecast
+- **Current Prices Endpoint:** https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/current-prices (NEW!)
+- **Method:** POST (forecast), GET (current-prices)
+- **Powered by:** Amazon Bedrock (Claude 3) + DynamoDB
 
 ## 🎯 Next Steps
 
