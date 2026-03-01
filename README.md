@@ -2,6 +2,11 @@
 
 A comprehensive AI-powered platform for market intelligence, demand forecasting, and pricing optimization, specifically designed for precious metals (gold/silver coins) and popular Indian ETFs. Built for the AI for Bharat Hackathon.
 
+# live link 🔗
+
+(amazonawsairetail)[http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com/]
+
+
 **🇮🇳 Current Indian Market Integration (February 2026):**
 - **24K Gold**: ₹1.3-1.6 Lakh per 10 grams (₹130,000-160,000)
 - **Silver**: ₹2.8-3.7 Lakh per kg (₹280,000-370,000)
