@@ -142,21 +142,49 @@ def get_market_context():
 def generate_copilot_response(user_message, context_data):
     """Generate intelligent response using Amazon Bedrock Claude"""
     
-    # Build context prompt
-    context_prompt = f"""You are an AI Market Copilot for a retail intelligence platform. You help users understand market trends, pricing, and make data-driven decisions.
+    # Build detailed context prompt
+    context_prompt = f"""You are an expert AI Market Copilot for an AI Retail Intelligence platform. Your role is to provide accurate, data-driven insights about market trends, pricing strategies, and investment recommendations.
 
-Current Market Data:
-- Gold Price: ₹{context_data.get('gold_price', 'N/A'):,.2f} (30-day trend: {context_data.get('gold_trend', 'N/A')}, change: {context_data.get('gold_change_30d', 0):.2f}%)
-- Silver Price: ₹{context_data.get('silver_price', 'N/A'):,.2f} (30-day trend: {context_data.get('silver_trend', 'N/A')}, change: {context_data.get('silver_change_30d', 0):.2f}%)
-- Products Tracked: {len(context_data.get('products', []))}
+CURRENT MARKET DATA (as of February 2026):
+
+📊 Precious Metals:
+- Gold (24K): ₹{context_data.get('gold_price', 0):,.2f}
+  • 30-day average: ₹{context_data.get('gold_avg_30d', 0):,.2f}
+  • Trend: {context_data.get('gold_trend', 'stable').upper()}
+  • 30-day change: {context_data.get('gold_change_30d', 0):+.2f}%
+  
+- Silver: ₹{context_data.get('silver_price', 0):,.2f}
+  • 30-day average: ₹{context_data.get('silver_avg_30d', 0):,.2f}
+  • Trend: {context_data.get('silver_trend', 'stable').upper()}
+  • 30-day change: {context_data.get('silver_change_30d', 0):+.2f}%
+
+💰 Retail Intelligence:
+- Products tracked: {len(context_data.get('products', []))}
+- Platforms monitored: Amazon, Flipkart, Zepto, Blinkit, BigBasket, Swiggy Instamart
 """
     
     if context_data.get('best_deals'):
-        context_prompt += "\nTop Savings Opportunities:\n"
-        for deal in context_data['best_deals']:
-            context_prompt += f"- {deal['product']}: Save ₹{deal['savings']:,.2f} ({deal['savings_pct']:.1f}%)\n"
+        context_prompt += "\n🔥 TOP SAVINGS OPPORTUNITIES:\n"
+        for i, deal in enumerate(context_data['best_deals'], 1):
+            context_prompt += f"{i}. {deal['product']}: Save ₹{deal['savings']:,.2f} ({deal['savings_pct']:.1f}% discount)\n"
     
-    context_prompt += f"\nUser Question: {user_message}\n\nProvide a helpful, concise response based on the data above. Use Indian Rupee (₹) for prices."
+    context_prompt += f"""
+
+USER QUESTION: "{user_message}"
+
+INSTRUCTIONS:
+1. Answer the user's question directly and specifically
+2. Use the market data provided above to support your answer
+3. Be concise but informative (2-4 sentences for simple questions, more for complex ones)
+4. Always use Indian Rupee (₹) symbol for prices
+5. If asked about trends, explain what the data shows and what it means
+6. If asked about recommendations, provide data-driven advice
+7. If asked about products/deals, reference the specific data above
+8. If the question is unclear, ask for clarification
+9. Format numbers with commas for readability (e.g., ₹1,60,579.29)
+10. Use bullet points or line breaks for better readability when listing multiple items
+
+Provide your response now:"""
     
     try:
         # Call Amazon Bedrock Claude
@@ -164,14 +192,15 @@ Current Market Data:
         
         request_body = {
             "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 1000,
+            "max_tokens": 2000,
+            "system": "You are an expert financial analyst and market intelligence advisor specializing in precious metals and retail pricing. You provide clear, accurate, data-driven insights. Always be specific and reference the actual data provided.",
             "messages": [
                 {
                     "role": "user",
                     "content": context_prompt
                 }
             ],
-            "temperature": 0.7
+            "temperature": 0.5
         }
         
         response = bedrock.invoke_model(
@@ -190,62 +219,169 @@ Current Market Data:
         return generate_fallback_response(user_message, context_data)
 
 def generate_fallback_response(user_message, context_data):
-    """Fallback rule-based responses if Bedrock fails"""
+    """Enhanced rule-based responses with real data"""
     
     message_lower = user_message.lower()
     
-    if 'gold' in message_lower and 'trend' in message_lower:
+    # Gold-related queries
+    if 'gold' in message_lower:
         gold_price = context_data.get('gold_price', 0)
         gold_trend = context_data.get('gold_trend', 'stable')
         gold_change = context_data.get('gold_change_30d', 0)
-        return f"Gold prices are currently at ₹{gold_price:,.2f}. The 30-day trend is {gold_trend} with a {gold_change:+.2f}% change. {'Prices are rising, which could indicate increased demand or inflation concerns.' if gold_trend == 'up' else 'Prices are declining, which might suggest reduced demand or market stability.'}"
+        gold_avg = context_data.get('gold_avg_30d', 0)
+        
+        response = f"**Gold Market Analysis (Feb 2026)**\n\n"
+        response += f"📊 Current Price: ₹{gold_price:,.2f}\n"
+        response += f"📈 30-Day Average: ₹{gold_avg:,.2f}\n"
+        response += f"📉 30-Day Change: {gold_change:+.2f}%\n"
+        response += f"🎯 Trend: {gold_trend.upper()}\n\n"
+        
+        if 'invest' in message_lower or 'buy' in message_lower or 'should i' in message_lower:
+            if gold_trend == 'down':
+                response += f"**Investment Insight:** Gold prices are currently {gold_change:.2f}% below the 30-day average. This could present a buying opportunity if you believe in long-term value. However, the downward trend suggests waiting for stabilization might be prudent."
+            else:
+                response += f"**Investment Insight:** Gold prices are trending {gold_trend} with a {gold_change:+.2f}% change. Consider your investment timeline and risk tolerance. Gold typically serves as a hedge against inflation and economic uncertainty."
+        elif 'trend' in message_lower or 'forecast' in message_lower:
+            response += f"**Trend Analysis:** The 30-day trend shows prices are {gold_trend}. "
+            if gold_change < -2:
+                response += "Significant decline observed, which may indicate reduced demand or market correction."
+            elif gold_change > 2:
+                response += "Strong upward momentum, possibly driven by inflation concerns or geopolitical factors."
+            else:
+                response += "Relatively stable movement, suggesting balanced market conditions."
+        else:
+            response += f"Gold is currently {'below' if gold_price < gold_avg else 'above'} its 30-day average, indicating {'potential value' if gold_price < gold_avg else 'premium pricing'}."
+        
+        return response
     
-    elif 'silver' in message_lower and 'trend' in message_lower:
+    # Silver-related queries
+    elif 'silver' in message_lower:
         silver_price = context_data.get('silver_price', 0)
         silver_trend = context_data.get('silver_trend', 'stable')
         silver_change = context_data.get('silver_change_30d', 0)
-        return f"Silver prices are currently at ₹{silver_price:,.2f}. The 30-day trend is {silver_trend} with a {silver_change:+.2f}% change. Silver often follows gold trends but with higher volatility."
+        silver_avg = context_data.get('silver_avg_30d', 0)
+        
+        response = f"**Silver Market Analysis (Feb 2026)**\n\n"
+        response += f"📊 Current Price: ₹{silver_price:,.2f}\n"
+        response += f"📈 30-Day Average: ₹{silver_avg:,.2f}\n"
+        response += f"📉 30-Day Change: {silver_change:+.2f}%\n"
+        response += f"🎯 Trend: {silver_trend.upper()}\n\n"
+        
+        if 'invest' in message_lower or 'buy' in message_lower:
+            response += f"**Investment Insight:** Silver is trading at ₹{silver_price:,.2f}, {silver_change:+.2f}% from 30 days ago. Silver typically has higher volatility than gold but also offers industrial demand drivers. "
+            if silver_trend == 'down':
+                response += "Current downtrend may offer entry points for long-term investors."
+            else:
+                response += "Upward trend suggests strong market sentiment."
+        else:
+            response += f"Silver shows a {silver_trend} trend with {'significant' if abs(silver_change) > 3 else 'moderate'} price movement."
+        
+        return response
     
-    elif 'best deal' in message_lower or 'savings' in message_lower:
-        if context_data.get('best_deals'):
-            deals_text = "Here are the top savings opportunities:\n\n"
-            for i, deal in enumerate(context_data['best_deals'], 1):
-                deals_text += f"{i}. {deal['product']}: Save ₹{deal['savings']:,.2f} ({deal['savings_pct']:.1f}%)\n"
-            return deals_text
-        return "I don't have current deal information available."
-    
-    elif 'compare' in message_lower or 'price' in message_lower:
-        return f"I can help you compare prices across 6 major platforms: Amazon, Flipkart, Zepto, Blinkit, BigBasket, and Swiggy Instamart. We're currently tracking {len(context_data.get('products', []))} products. What specific product would you like to compare?"
-    
-    elif 'market summary' in message_lower or 'summary' in message_lower:
+    # Comparison queries
+    elif ('compare' in message_lower or 'vs' in message_lower or 'versus' in message_lower) and ('gold' in message_lower or 'silver' in message_lower):
         gold_price = context_data.get('gold_price', 0)
         silver_price = context_data.get('silver_price', 0)
-        return f"""Market Summary:
-
-📈 Precious Metals:
-• Gold: ₹{gold_price:,.2f} ({context_data.get('gold_trend', 'stable')} trend)
-• Silver: ₹{silver_price:,.2f} ({context_data.get('silver_trend', 'stable')} trend)
-
-💰 Retail Intelligence:
-• Products tracked: {len(context_data.get('products', []))}
-• Platforms monitored: 6 (Amazon, Flipkart, Zepto, Blinkit, BigBasket, Swiggy)
-
-The market shows {'positive momentum' if context_data.get('gold_trend') == 'up' else 'stable conditions'} with opportunities for savings across multiple product categories."""
+        gold_change = context_data.get('gold_change_30d', 0)
+        silver_change = context_data.get('silver_change_30d', 0)
+        
+        response = f"**Gold vs Silver Comparison (Feb 2026)**\n\n"
+        response += f"🥇 Gold: ₹{gold_price:,.2f} ({gold_change:+.2f}% 30-day)\n"
+        response += f"🥈 Silver: ₹{silver_price:,.2f} ({silver_change:+.2f}% 30-day)\n\n"
+        response += f"**Performance:** "
+        
+        if abs(gold_change) > abs(silver_change):
+            response += f"Gold showing more volatility ({abs(gold_change):.2f}% vs {abs(silver_change):.2f}%).\n"
+        else:
+            response += f"Silver showing more volatility ({abs(silver_change):.2f}% vs {abs(gold_change):.2f}%).\n"
+        
+        response += f"\n**Recommendation:** "
+        if gold_change < 0 and silver_change < 0:
+            response += "Both metals are declining. Consider waiting for trend reversal or dollar-cost averaging."
+        elif gold_change > silver_change:
+            response += "Gold outperforming silver. Gold may be better for stability, silver for growth potential."
+        else:
+            response += "Silver outperforming gold. Silver offers higher risk-reward ratio."
+        
+        return response
     
+    # Best deals queries
+    elif 'best deal' in message_lower or 'savings' in message_lower or 'discount' in message_lower:
+        if context_data.get('best_deals'):
+            response = "**🔥 Top Savings Opportunities**\n\n"
+            for i, deal in enumerate(context_data['best_deals'], 1):
+                response += f"{i}. **{deal['product']}**\n"
+                response += f"   💰 Save: ₹{deal['savings']:,.2f} ({deal['savings_pct']:.1f}% discount)\n\n"
+            response += "These are real-time price differences across Amazon, Flipkart, Zepto, Blinkit, BigBasket, and Swiggy Instamart."
+            return response
+        return "I don't have current deal information available. Please check back later."
+    
+    # Product comparison queries
+    elif 'compare' in message_lower and ('price' in message_lower or 'product' in message_lower or 'fridge' in message_lower or 'washing' in message_lower):
+        response = f"**Product Price Comparison**\n\n"
+        response += f"I can compare prices across 6 major platforms:\n"
+        response += f"• Amazon\n• Flipkart\n• Zepto\n• Blinkit\n• BigBasket\n• Swiggy Instamart\n\n"
+        response += f"Currently tracking {len(context_data.get('products', []))} products.\n\n"
+        
+        if context_data.get('best_deals'):
+            response += f"**Top Deal Right Now:**\n"
+            top_deal = context_data['best_deals'][0]
+            response += f"{top_deal['product']} - Save ₹{top_deal['savings']:,.2f} ({top_deal['savings_pct']:.1f}%)"
+        
+        return response
+    
+    # Market summary queries
+    elif 'market summary' in message_lower or 'summary' in message_lower or 'overview' in message_lower:
+        gold_price = context_data.get('gold_price', 0)
+        silver_price = context_data.get('silver_price', 0)
+        gold_change = context_data.get('gold_change_30d', 0)
+        silver_change = context_data.get('silver_change_30d', 0)
+        
+        response = f"**Market Summary - February 2026**\n\n"
+        response += f"📊 **Precious Metals:**\n"
+        response += f"• Gold: ₹{gold_price:,.2f} ({gold_change:+.2f}% 30-day)\n"
+        response += f"• Silver: ₹{silver_price:,.2f} ({silver_change:+.2f}% 30-day)\n\n"
+        response += f"💰 **Retail Intelligence:**\n"
+        response += f"• Products tracked: {len(context_data.get('products', []))}\n"
+        response += f"• Platforms monitored: 6\n\n"
+        
+        if context_data.get('best_deals'):
+            response += f"🔥 **Best Opportunity:**\n"
+            top_deal = context_data['best_deals'][0]
+            response += f"{top_deal['product']} - Save ₹{top_deal['savings']:,.2f}\n\n"
+        
+        response += f"**Market Sentiment:** "
+        if gold_change < 0 and silver_change < 0:
+            response += "Bearish - Both metals declining"
+        elif gold_change > 0 and silver_change > 0:
+            response += "Bullish - Both metals rising"
+        else:
+            response += "Mixed - Divergent trends"
+        
+        return response
+    
+    # Default helpful response
     else:
-        return f"""I'm your AI Market Copilot! I can help you with:
-
-• Price forecasting and trends (Gold, Silver, ETF)
-• Competitive pricing analysis across 6 platforms
-• Product comparisons and best deals
-• Market insights and recommendations
-
-Current market snapshot:
-• Gold: ₹{context_data.get('gold_price', 0):,.2f}
-• Silver: ₹{context_data.get('silver_price', 0):,.2f}
-• Products tracked: {len(context_data.get('products', []))}
-
-What would you like to know?"""
+        gold_price = context_data.get('gold_price', 0)
+        silver_price = context_data.get('silver_price', 0)
+        
+        response = f"**AI Market Copilot - How Can I Help?**\n\n"
+        response += f"I can assist you with:\n\n"
+        response += f"📈 **Price Analysis**\n"
+        response += f"• Gold trends and forecasts\n"
+        response += f"• Silver market insights\n"
+        response += f"• Investment recommendations\n\n"
+        response += f"💰 **Retail Intelligence**\n"
+        response += f"• Product price comparisons\n"
+        response += f"• Best deals across 6 platforms\n"
+        response += f"• Savings opportunities\n\n"
+        response += f"**Current Snapshot:**\n"
+        response += f"• Gold: ₹{gold_price:,.2f}\n"
+        response += f"• Silver: ₹{silver_price:,.2f}\n"
+        response += f"• Products: {len(context_data.get('products', []))} tracked\n\n"
+        response += f"Try asking: \"What are gold price trends?\" or \"Show me best deals\""
+        
+        return response
 
 def error_response(status_code, message):
     """Return error response"""
