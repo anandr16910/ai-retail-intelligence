@@ -4,7 +4,7 @@ A comprehensive AI-powered platform for market intelligence, demand forecasting,
 
 # live link 🔗
 
-(amazonawsairetail)[http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com/]
+(amazonawsairetail)(http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com/) 
 
 
 **🇮🇳 Current Indian Market Integration (February 2026):**
