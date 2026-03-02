@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Retail Intelligence - Full Dashboard</title>
+    <title>AI Retail Intelligence - Powered by Amazon Bedrock</title>
     <style>
         * {
             margin: 0;
@@ -311,6 +311,29 @@
             word-break: break-all;
         }
 
+        .bedrock-badge {
+            background: linear-gradient(135deg, #FF9900 0%, #FF6600 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 15px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
+        }
+
+        .bedrock-badge .badge-title {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+
+        .bedrock-badge .badge-main {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -333,7 +356,13 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>🛒 AI Retail Intelligence</h2>
-            <p style="font-size: 0.9rem; opacity: 0.9;">Powered by Amazon Nova Lite</p>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Powered by Amazon Bedrock</p>
+        </div>
+
+        <div class="bedrock-badge">
+            <div class="badge-title">POWERED BY</div>
+            <div class="badge-main">🔶 Amazon Bedrock</div>
+            <div style="font-size: 0.7rem; margin-top: 3px; opacity: 0.9;">9 AI Models Available</div>
         </div>
         
         <div class="nav-menu">
@@ -379,8 +408,8 @@
         <!-- Overview Page -->
         <div id="overview" class="page active">
             <div class="header">
-                <h1>Dashboard Overview</h1>
-                <p>Real-time insights and analytics</p>
+                <h1>🛒 AI Retail Intelligence</h1>
+                <p>Powered by Amazon Bedrock - Real-time insights and analytics</p>
             </div>
 
             <div class="metrics-grid">
