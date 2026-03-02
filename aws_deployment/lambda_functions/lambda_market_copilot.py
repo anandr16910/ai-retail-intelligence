@@ -110,7 +110,7 @@ def get_market_context():
             context['silver_change_30d'] = ((silver_prices[0] - silver_prices[-1]) / silver_prices[-1]) * 100
         
         # Get product pricing data
-        products_response = competitive_pricing_table.scan(Limit=10)
+        products_response = competitive_pricing_table.scan()
         context['products'] = products_response.get('Items', [])
         
         # Calculate best deals
@@ -140,67 +140,77 @@ def get_market_context():
     return context
 
 def generate_copilot_response(user_message, context_data):
-    """Generate intelligent response using Amazon Bedrock Claude"""
+    """Generate intelligent response using Amazon Bedrock Nova"""
     
-    # Build detailed context prompt
-    context_prompt = f"""You are an expert AI Market Copilot for an AI Retail Intelligence platform. Your role is to provide accurate, data-driven insights about market trends, pricing strategies, and investment recommendations.
+    # Build detailed context prompt with ALL product data
+    context_prompt = f"""You are an expert AI Market Copilot for retail intelligence. Provide accurate, data-driven market insights.
 
-CURRENT MARKET DATA (as of February 2026):
+MARKET DATA (February 2026):
 
-📊 Precious Metals:
-- Gold (24K): ₹{context_data.get('gold_price', 0):,.2f}
-  • 30-day average: ₹{context_data.get('gold_avg_30d', 0):,.2f}
-  • Trend: {context_data.get('gold_trend', 'stable').upper()}
-  • 30-day change: {context_data.get('gold_change_30d', 0):+.2f}%
-  
-- Silver: ₹{context_data.get('silver_price', 0):,.2f}
-  • 30-day average: ₹{context_data.get('silver_avg_30d', 0):,.2f}
-  • Trend: {context_data.get('silver_trend', 'stable').upper()}
-  • 30-day change: {context_data.get('silver_change_30d', 0):+.2f}%
+Gold (24K): ₹{context_data.get('gold_price', 0):,.2f}
+- 30-day average: ₹{context_data.get('gold_avg_30d', 0):,.2f}
+- Trend: {context_data.get('gold_trend', 'stable').upper()}
+- 30-day change: {context_data.get('gold_change_30d', 0):+.2f}%
 
-💰 Retail Intelligence:
-- Products tracked: {len(context_data.get('products', []))}
-- Platforms monitored: Amazon, Flipkart, Zepto, Blinkit, BigBasket, Swiggy Instamart
+Silver: ₹{context_data.get('silver_price', 0):,.2f}
+- 30-day average: ₹{context_data.get('silver_avg_30d', 0):,.2f}
+- Trend: {context_data.get('silver_trend', 'stable').upper()}
+- 30-day change: {context_data.get('silver_change_30d', 0):+.2f}%
+
+PRODUCTS DATABASE ({len(context_data.get('products', []))} products):
 """
     
+    # Add ALL product details to context
+    products = context_data.get('products', [])
+    if products:
+        for product in products:
+            name = product.get('product_name', 'Unknown')
+            prices = product.get('prices', {})
+            
+            if isinstance(prices, dict):
+                from decimal import Decimal
+                price_values = {k: float(v) for k, v in prices.items() if isinstance(v, (int, float, Decimal))}
+                
+                if price_values:
+                    min_price = min(price_values.values())
+                    best_platform = [k for k, v in price_values.items() if v == min_price][0]
+                    
+                    context_prompt += f"\n{name}:\n"
+                    context_prompt += f"  Best: ₹{min_price:,.0f} on {best_platform}\n"
+                    context_prompt += f"  Prices: "
+                    context_prompt += ", ".join([f"{k}=₹{v:,.0f}" for k, v in sorted(price_values.items(), key=lambda x: x[1])])
+                    context_prompt += "\n"
+    
+    context_prompt += "\nPlatforms: Amazon, Flipkart, Zepto, Blinkit, BigBasket, Swiggy\n"
+    
     if context_data.get('best_deals'):
-        context_prompt += "\n🔥 TOP SAVINGS OPPORTUNITIES:\n"
-        for i, deal in enumerate(context_data['best_deals'], 1):
-            context_prompt += f"{i}. {deal['product']}: Save ₹{deal['savings']:,.2f} ({deal['savings_pct']:.1f}% discount)\n"
+        context_prompt += "\nTOP SAVINGS:\n"
+        for i, deal in enumerate(context_data['best_deals'][:3], 1):
+            context_prompt += f"{i}. {deal['product']}: Save ₹{deal['savings']:,.2f} ({deal['savings_pct']:.1f}%)\n"
     
     context_prompt += f"""
+Question: {user_message}
 
-USER QUESTION: "{user_message}"
+Provide a helpful, specific answer using the product data above. Use ₹ for prices. Be concise (2-4 sentences for simple questions).
 
-INSTRUCTIONS:
-1. Answer the user's question directly and specifically
-2. Use the market data provided above to support your answer
-3. Be concise but informative (2-4 sentences for simple questions, more for complex ones)
-4. Always use Indian Rupee (₹) symbol for prices
-5. If asked about trends, explain what the data shows and what it means
-6. If asked about recommendations, provide data-driven advice
-7. If asked about products/deals, reference the specific data above
-8. If the question is unclear, ask for clarification
-9. Format numbers with commas for readability (e.g., ₹1,60,579.29)
-10. Use bullet points or line breaks for better readability when listing multiple items
-
-Provide your response now:"""
+Answer:"""
     
     try:
-        # Call Amazon Bedrock Claude
-        model_id = "anthropic.claude-3-haiku-20240307-v1:0"
+        # Call Amazon Bedrock Nova Lite (no approval needed!)
+        model_id = "amazon.nova-lite-v1:0"
         
         request_body = {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 2000,
-            "system": "You are an expert financial analyst and market intelligence advisor specializing in precious metals and retail pricing. You provide clear, accurate, data-driven insights. Always be specific and reference the actual data provided.",
             "messages": [
                 {
                     "role": "user",
-                    "content": context_prompt
+                    "content": [{"text": context_prompt}]
                 }
             ],
-            "temperature": 0.5
+            "inferenceConfig": {
+                "max_new_tokens": 2000,
+                "temperature": 0.5,
+                "topP": 0.9
+            }
         }
         
         response = bedrock.invoke_model(
@@ -209,7 +219,7 @@ Provide your response now:"""
         )
         
         response_body = json.loads(response['body'].read())
-        assistant_message = response_body['content'][0]['text']
+        assistant_message = response_body['output']['message']['content'][0]['text']
         
         return assistant_message
     
@@ -315,6 +325,55 @@ def generate_fallback_response(user_message, context_data):
             response += "These are real-time price differences across Amazon, Flipkart, Zepto, Blinkit, BigBasket, and Swiggy Instamart."
             return response
         return "I don't have current deal information available. Please check back later."
+    
+    # Specific product queries (olive oil, printer, fridge, etc.)
+    elif any(keyword in message_lower for keyword in ['olive oil', 'olive', 'printer', 'fridge', 'refrigerator', 'washing machine', 'washer', 'microwave', 'dishwasher', 'ac', 'air conditioner', 'figaro', 'borges', 'hp', 'canon', 'samsung', 'lg', 'whirlpool', 'godrej', 'haier', 'bosch']):
+        products = context_data.get('products', [])
+        
+        # Search for matching products
+        matching_products = []
+        search_keywords = ['olive', 'printer', 'fridge', 'refrigerator', 'washing', 'microwave', 'dishwasher', 'figaro', 'borges', 'hp', 'canon', 'samsung', 'lg', 'whirlpool', 'godrej', 'haier', 'bosch', 'ac']
+        
+        for product in products:
+            product_name = product.get('product_name', '').lower()
+            if any(keyword in product_name for keyword in search_keywords if keyword in message_lower):
+                matching_products.append(product)
+        
+        if matching_products:
+            response = f"**Found {len(matching_products)} Product(s)**\n\n"
+            
+            for product in matching_products[:5]:  # Show top 5 matches
+                name = product.get('product_name', 'Unknown')
+                prices = product.get('prices', {})
+                
+                if isinstance(prices, dict):
+                    price_values = {k: float(v) for k, v in prices.items() if isinstance(v, (int, float, Decimal))}
+                    
+                    if price_values:
+                        min_price = min(price_values.values())
+                        max_price = max(price_values.values())
+                        best_platform = [k for k, v in price_values.items() if v == min_price][0]
+                        savings = max_price - min_price
+                        savings_pct = (savings / max_price) * 100
+                        
+                        response += f"**{name}**\n"
+                        response += f"💰 Best Price: ₹{min_price:,.0f} on {best_platform}\n"
+                        response += f"💵 Save: ₹{savings:,.0f} ({savings_pct:.1f}%)\n\n"
+                        response += f"All Prices:\n"
+                        for platform, price in sorted(price_values.items(), key=lambda x: x[1]):
+                            response += f"  • {platform}: ₹{price:,.0f}\n"
+                        response += "\n"
+            
+            return response
+        else:
+            response = f"**Product Not Found in Database**\n\n"
+            response += f"I currently track {len(products)} products:\n"
+            response += f"• Home Appliances (Fridges, Washing Machines, Microwaves, ACs, Dishwashers)\n"
+            response += f"• Electronics (Printers)\n"
+            response += f"• Groceries (Olive Oil)\n\n"
+            response += f"**Note:** I can only compare prices for products in my database. I cannot fetch live prices from Amazon.in or other websites.\n\n"
+            response += f"To add this product, update the DynamoDB CompetitivePricing table."
+            return response
     
     # Product comparison queries
     elif 'compare' in message_lower and ('price' in message_lower or 'product' in message_lower or 'fridge' in message_lower or 'washing' in message_lower):
