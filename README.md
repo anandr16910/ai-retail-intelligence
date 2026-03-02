@@ -2,9 +2,9 @@
 
 A comprehensive AI-powered platform for market intelligence, demand forecasting, and pricing optimization, specifically designed for precious metals (gold/silver coins) and popular Indian ETFs. Built for the AI for Bharat Hackathon.
 
-# live link 
+# Live link 
 
-https://d1bnxekksvv509.cloudfront.net
+
 
 
 **🇮🇳 Current Indian Market Integration (February 2026):**
