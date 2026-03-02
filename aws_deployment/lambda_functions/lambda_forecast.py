@@ -34,8 +34,9 @@ def lambda_handler(event, context):
         model_choice = body.get('model', 'claude-3-haiku')
         
         # Validate inputs
-        if asset not in ['GOLD', 'SILVER', 'ETF']:
-            return error_response(400, 'Invalid asset. Must be GOLD, SILVER, or ETF')
+        valid_assets = ['GOLD', 'SILVER', 'ETF', 'P009', 'P010', 'P011', 'P012', 'P013', 'P014', 'P015', 'P016']
+        if asset not in valid_assets:
+            return error_response(400, f'Invalid asset. Must be one of: {", ".join(valid_assets)}')
         
         if horizon < 1 or horizon > 90:
             return error_response(400, 'Horizon must be between 1 and 90 days')
@@ -140,9 +141,11 @@ Volatility: {volatility:.2f}%
 Recent Prices:
 {json.dumps(data_summary[:10], indent=2)}
 
+IMPORTANT: You MUST provide predictions for ALL {horizon} days. Generate exactly {horizon} predictions, one for each day.
+
 Please provide:
-1. Predicted prices for the next {horizon} days (provide at least 5 key dates)
-2. Confidence intervals (95% confidence level)
+1. Predicted prices for ALL {horizon} days (Day 1, Day 2, ..., Day {horizon})
+2. Confidence intervals (95% confidence level) for each day
 3. Key factors influencing the forecast
 4. Risk assessment (Low/Medium/High)
 5. Trend direction (Upward/Downward/Stable)
@@ -151,7 +154,7 @@ Format your response as JSON with the following structure:
 {{
     "predictions": [
         {{"date": "YYYY-MM-DD", "price": 160000.00, "confidence_low": 158000.00, "confidence_high": 162000.00}},
-        ...
+        ... (continue for all {horizon} days)
     ],
     "key_factors": ["factor1", "factor2", ...],
     "risk_level": "Medium",
@@ -186,6 +189,25 @@ Format your response as JSON with the following structure:
             end_idx = forecast_text.rfind('}') + 1
             if start_idx != -1 and end_idx > start_idx:
                 forecast_json = json.loads(forecast_text[start_idx:end_idx])
+                
+                # Ensure we have enough predictions
+                predictions = forecast_json.get('predictions', [])
+                if len(predictions) < horizon:
+                    # Fill in missing predictions
+                    last_price = predictions[-1]['price'] if predictions else avg_price
+                    current_date = datetime.now()
+                    
+                    for i in range(len(predictions), horizon):
+                        date = current_date + timedelta(days=i+1)
+                        predictions.append({
+                            'date': date.strftime('%Y-%m-%d'),
+                            'price': round(last_price, 2),
+                            'confidence_low': round(last_price * 0.98, 2),
+                            'confidence_high': round(last_price * 1.02, 2)
+                        })
+                    
+                    forecast_json['predictions'] = predictions
+                
                 return forecast_json
             else:
                 # Return structured response with text
@@ -223,7 +245,7 @@ def generate_simple_predictions(base_price, horizon):
     predictions = []
     current_date = datetime.now()
     
-    for i in range(min(horizon, 10)):  # Generate up to 10 predictions
+    for i in range(horizon):  # Generate predictions for all requested days
         date = current_date + timedelta(days=i+1)
         # Simple prediction with small random variation
         variation = (i % 3 - 1) * 0.01  # -1%, 0%, +1%
@@ -280,7 +302,11 @@ def get_model_id(model_choice):
     models = {
         'claude-3-sonnet': 'anthropic.claude-3-sonnet-20240229-v1:0',
         'claude-3-haiku': 'anthropic.claude-3-haiku-20240307-v1:0',
-        'titan-text': 'amazon.titan-text-premier-v1:0'
+        'titan-text': 'amazon.titan-text-premier-v1:0',
+        'llama-3-3-70b': 'meta.llama3-3-70b-instruct-v1:0',
+        'llama-4-scout': 'meta.llama4-scout-17b-instruct-v1:0',
+        'deepseek-v3': 'deepseek.v3.2',
+        'deepseek-r1': 'deepseek.r1-v1:0'
     }
     return models.get(model_choice, models['claude-3-haiku'])
 

@@ -2,6 +2,8 @@
 
 A comprehensive AI-powered platform for market intelligence, demand forecasting, and pricing optimization, specifically designed for precious metals (gold/silver coins) and popular Indian ETFs. Built for the AI for Bharat Hackathon.
 
+**🌐 Live Dashboard**: [http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com](http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com)
+
 **🇮🇳 Current Indian Market Integration (February 2026):**
 - **24K Gold**: ₹1.3-1.6 Lakh per 10 grams (₹130,000-160,000)
 - **Silver**: ₹2.8-3.7 Lakh per kg (₹280,000-370,000)
@@ -9,6 +11,16 @@ A comprehensive AI-powered platform for market intelligence, demand forecasting,
 - **Market Features**: GST integration, festival effects, Indian trading patterns
 
 ## 🚀 Features
+
+### 🌐 Live Production Dashboard
+**Access the platform**: [http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com](http://ai-retail-dashboard-439786465522.s3-website-us-east-1.amazonaws.com)
+
+The platform is fully deployed on AWS with:
+- **Real-time Price Forecasting**: 6 AI models (Nova Lite/Pro, Llama 3.3 70B, Llama 4 Scout, DeepSeek V3/R1)
+- **AI Document Analysis**: 7 AI models (Nova Micro/Lite/Pro, Llama 3.2 3B, 3.1 8B, 3.3 70B, 4 Scout)
+- **Market Copilot**: Conversational AI with integrated pricing intelligence
+- **Current Prices**: Real-time gold, silver, and ETF price tracking
+- **Platform Status**: Live system health monitoring with 9 AI models
 
 ### Core Capabilities
 - **Price Trend Forecasting**: ML-based prediction for gold, silver, and ETF prices

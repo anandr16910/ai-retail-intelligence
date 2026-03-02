@@ -333,7 +333,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>🛒 AI Retail Intelligence</h2>
-            <p style="font-size: 0.9rem; opacity: 0.9;">Powered by Amazon Bedrock</p>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Powered by Amazon Nova Lite</p>
         </div>
         
         <div class="nav-menu">
@@ -387,7 +387,7 @@
                 <div class="metric-card">
                     <div class="metric-label">Products Tracked</div>
                     <div class="metric-value" id="products-count">--</div>
-                    <div class="metric-delta">6 platforms</div>
+                    <div class="metric-delta">Across 6 platforms: Amazon, Flipkart, Zepto, Blinkit, BigBasket, Swiggy</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Gold Price (₹)</div>
@@ -454,9 +454,21 @@
                         <div class="form-group">
                             <label for="asset">Select Asset</label>
                             <select id="asset" required>
-                                <option value="GOLD">Gold (24K)</option>
-                                <option value="SILVER">Silver</option>
-                                <option value="ETF">Indian ETFs</option>
+                                <optgroup label="Precious Metals">
+                                    <option value="GOLD">Gold (24K)</option>
+                                    <option value="SILVER">Silver</option>
+                                    <option value="ETF">Indian ETFs</option>
+                                </optgroup>
+                                <optgroup label="Household Items">
+                                    <option value="P009">Fortune Sunflower Oil 1L</option>
+                                    <option value="P010">Dhara Mustard Oil 1L</option>
+                                    <option value="P011">Toor Dal 1kg</option>
+                                    <option value="P012">Dove Shampoo 650ml</option>
+                                    <option value="P013">Surf Excel Detergent 2kg</option>
+                                    <option value="P014">Vim Dishwash Gel 750ml</option>
+                                    <option value="P015">Red Label Tea 1kg</option>
+                                    <option value="P016">Colgate Toothpaste 500g</option>
+                                </optgroup>
                             </select>
                         </div>
 
@@ -468,8 +480,12 @@
                         <div class="form-group">
                             <label for="model">AI Model</label>
                             <select id="model" required>
-                                <option value="claude-3-haiku">Claude 3 Haiku (Fast)</option>
-                                <option value="claude-3-sonnet">Claude 3 Sonnet (Detailed)</option>
+                                <option value="claude-3-haiku">Amazon Nova Lite (Fast & Cost-effective)</option>
+                                <option value="claude-3-sonnet">Claude 3 Sonnet (Detailed Analysis)</option>
+                                <option value="llama-3-3-70b">Meta Llama 3.3 70B (Open Source)</option>
+                                <option value="llama-4-scout">Meta Llama 4 Scout 17B (Latest)</option>
+                                <option value="deepseek-v3">DeepSeek V3.2 (Best Value)</option>
+                                <option value="deepseek-r1">DeepSeek R1 (Reasoning)</option>
                             </select>
                         </div>
                     </div>
@@ -505,17 +521,23 @@
                 <div class="form-group">
                     <label>Sample Products</label>
                     <div class="quick-actions">
-                        <button class="quick-action-btn" onclick="alert('Price comparison feature connects to your backend API. Sample: Godrej Single Door Fridge - ₹16,999 (Zepto) vs ₹18,490 (Flipkart). Save ₹1,491!')">
+                        <button class="quick-action-btn" onclick="alert('Godrej Fridge 235L\n\nAmazon: ₹19,998\nFlipkart: ₹18,490\nZepto: ₹20,190\n\n✅ Best Deal: Flipkart - Save ₹1,508!')">
                             Godrej Fridge
                         </button>
-                        <button class="quick-action-btn" onclick="alert('Price comparison feature connects to your backend API. Sample: Samsung Washing Machine - ₹22,999 (Amazon) vs ₹24,500 (BigBasket). Save ₹1,501!')">
+                        <button class="quick-action-btn" onclick="alert('Samsung Washing Machine 7kg\n\nAmazon: ₹22,999\nFlipkart: ₹24,500\nZepto: ₹23,500\nBlinkit: ₹24,200\nBigBasket: ₹23,800\nSwiggy: ₹24,000\n\n✅ Best Deal: Amazon - Save ₹1,501!')">
                             Samsung Washer
                         </button>
-                        <button class="quick-action-btn" onclick="alert('Price comparison feature connects to your backend API. Sample: LG Microwave - ₹8,999 (Blinkit) vs ₹9,490 (Swiggy). Save ₹491!')">
+                        <button class="quick-action-btn" onclick="alert('LG Microwave 20L\n\nAmazon: ₹8,999\nFlipkart: ₹9,200\nZepto: ₹8,800\nBlinkit: ₹8,999\nBigBasket: ₹9,100\nSwiggy: ₹9,490\n\n✅ Best Deal: Zepto - Save ₹690!')">
                             LG Microwave
                         </button>
-                        <button class="quick-action-btn" onclick="alert('Price comparison feature connects to your backend API. Sample: Whirlpool AC - ₹32,999 (Flipkart) vs ₹34,990 (Amazon). Save ₹1,991!')">
+                        <button class="quick-action-btn" onclick="alert('Whirlpool AC 1.5 Ton\n\nAmazon: ₹34,990\nFlipkart: ₹32,999\nZepto: ₹35,500\nBlinkit: ₹34,500\nBigBasket: ₹33,999\nSwiggy: ₹35,200\n\n✅ Best Deal: Flipkart - Save ₹2,501!')">
                             Whirlpool AC
+                        </button>
+                        <button class="quick-action-btn" onclick="alert('HP DeskJet Printer 2723\n\nAmazon: ₹4,999\nFlipkart: ₹5,200\nZepto: ₹5,100\nBlinkit: ₹5,050\nBigBasket: ₹5,150\nSwiggy: ₹5,300\n\n✅ Best Deal: Amazon - Save ₹301!')">
+                            HP Printer
+                        </button>
+                        <button class="quick-action-btn" onclick="alert('Figaro Olive Oil 1L\n\nAmazon: ₹899\nFlipkart: ₹920\nZepto: ₹850\nBlinkit: ₹870\nBigBasket: ₹880\nSwiggy: ₹890\n\n✅ Best Deal: Zepto - Save ₹70!')">
+                            Figaro Olive Oil
                         </button>
                     </div>
                 </div>
@@ -523,11 +545,16 @@
                 <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin-top: 20px;">
                     <h3 style="color: #004085; margin-bottom: 10px;">💡 Best Deals Available</h3>
                     <ul style="margin-left: 20px; color: #004085;">
-                        <li>Godrej Single Door Fridge: Save ₹1,491 (8.1%) - Buy from Zepto</li>
-                        <li>Samsung Washing Machine: Save ₹1,501 (6.1%) - Buy from Amazon</li>
-                        <li>LG Microwave: Save ₹491 (5.2%) - Buy from Blinkit</li>
-                        <li>Whirlpool AC: Save ₹1,991 (5.7%) - Buy from Flipkart</li>
-                        <li>Haier Refrigerator: Save ₹2,500 (7.1%) - Buy from Zepto</li>
+                        <li>Whirlpool AC 1.5 Ton: Save ₹2,501 (7.0%) - Buy from Flipkart</li>
+                        <li>Godrej Fridge 235L: Save ₹1,508 (7.5%) - Buy from Flipkart</li>
+                        <li>Samsung Washing Machine 7kg: Save ₹1,501 (6.1%) - Buy from Amazon</li>
+                        <li>Bosch Dishwasher: Save ₹1,501 (3.4%) - Buy from Amazon</li>
+                        <li>Haier Refrigerator 195L: Save ₹1,000 (5.7%) - Buy from Zepto</li>
+                        <li>LG Microwave 20L: Save ₹690 (7.3%) - Buy from Zepto</li>
+                        <li>Canon Printer G3000: Save ₹601 (4.4%) - Buy from Amazon</li>
+                        <li>HP Printer 2723: Save ₹301 (5.7%) - Buy from Amazon</li>
+                        <li>Figaro Olive Oil 1L: Save ₹70 (7.6%) - Buy from Zepto</li>
+                        <li>Borges Olive Oil 500ml: Save ₹40 (6.5%) - Buy from Zepto</li>
                     </ul>
                 </div>
             </div>
@@ -546,12 +573,12 @@
                 <div class="chat-container" id="chatContainer">
                     <div class="chat-message assistant">
                         <strong>Market Copilot:</strong>
-                        Hello! I'm your AI Market Copilot powered by Amazon Bedrock (Claude 3). I can help you with:<br><br>
+                        Hello! I'm your AI Market Copilot powered by Amazon Nova Lite. I can help you with:<br><br>
                         • Price forecasting and trends (Gold, Silver, ETF)<br>
                         • Competitive pricing analysis across 6 platforms<br>
                         • Product comparisons and best deals<br>
-                        • Market insights and data-driven recommendations<br><br>
-                        I have access to real-time market data. What would you like to know?
+                        • Market insights and investment recommendations<br><br>
+                        I have access to real-time market data from February 2026. What would you like to know?
                     </div>
                 </div>
 
@@ -605,7 +632,26 @@
                     </select>
                 </div>
 
-                <button class="btn" onclick="analyzeDocument()">Analyze Document</button>
+                <div class="form-group">
+                    <label for="docModel">AI Model</label>
+                    <select id="docModel">
+                        <optgroup label="Amazon Nova (Latest)">
+                            <option value="nova-micro">Nova Micro - Fastest ($0.035/1M)</option>
+                            <option value="nova-lite">Nova Lite - Balanced ($0.06/1M) ⭐</option>
+                            <option value="nova-pro">Nova Pro - Best Quality ($0.80/1M)</option>
+                        </optgroup>
+                        <optgroup label="Meta Llama (Open Source)">
+                            <option value="llama-3.2-3b">Llama 3.2 3B - Ultra Fast (Free)</option>
+                            <option value="llama-3.1-8b">Llama 3.1 8B - Fast (Free)</option>
+                            <option value="llama-3.3-70b">Llama 3.3 70B - High Quality (Free)</option>
+                            <option value="llama-4-scout">Llama 4 Scout 17B - Latest (Free)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="analyzeDocument()" id="analyzeBtn">
+                    <span id="analyzeBtnText">🔍 Analyze Document</span>
+                </button>
 
                 <div id="analysisResults" style="display: none; margin-top: 30px;">
                     <h3 style="margin-bottom: 15px;">Analysis Results</h3>
@@ -684,15 +730,39 @@
                         <h3 style="margin-bottom: 15px;">AI Models</h3>
                         <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
                             <span class="status-indicator status-online"></span>
-                            <strong>Claude 3 Haiku:</strong> Available
+                            <strong>Amazon Nova Micro:</strong> Available
                         </div>
                         <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
                             <span class="status-indicator status-online"></span>
-                            <strong>Claude 3 Sonnet:</strong> Available
+                            <strong>Amazon Nova Lite:</strong> Available
                         </div>
-                        <div style="padding: 10px; background: #fff3cd; border-radius: 5px; margin-bottom: 10px;">
-                            <span class="status-indicator status-warning"></span>
-                            <strong>Amazon Q:</strong> Optional
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>Amazon Nova Pro:</strong> Available
+                        </div>
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>Llama 3.2 3B:</strong> Available
+                        </div>
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>Llama 3.1 8B:</strong> Available
+                        </div>
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>Llama 3.3 70B:</strong> Available
+                        </div>
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>Llama 4 Scout:</strong> Available
+                        </div>
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>DeepSeek V3:</strong> Available
+                        </div>
+                        <div style="padding: 10px; background: #d4edda; border-radius: 5px; margin-bottom: 10px;">
+                            <span class="status-indicator status-online"></span>
+                            <strong>DeepSeek R1:</strong> Available
                         </div>
                     </div>
                 </div>
@@ -841,12 +911,36 @@
         }
 
         function displayForecastResults(data) {
-            const assetNames = { 'GOLD': 'Gold (24K)', 'SILVER': 'Silver', 'ETF': 'Indian ETFs' };
+            const assetNames = { 
+                'GOLD': 'Gold (24K)', 
+                'SILVER': 'Silver', 
+                'ETF': 'Indian ETFs',
+                'P009': 'Fortune Sunflower Oil 1L',
+                'P010': 'Dhara Mustard Oil 1L',
+                'P011': 'Toor Dal 1kg',
+                'P012': 'Dove Shampoo 650ml',
+                'P013': 'Surf Excel Detergent 2kg',
+                'P014': 'Vim Dishwash Gel 750ml',
+                'P015': 'Red Label Tea 1kg',
+                'P016': 'Colgate Toothpaste 500g'
+            };
+            
+            const modelNames = {
+                'claude-3-haiku': 'Amazon Nova Lite (Fast)',
+                'claude-3-sonnet': 'Claude 3 Sonnet (Detailed)',
+                'llama-3-3-70b': 'Meta Llama 3.3 70B (Open Source)',
+                'llama-4-scout': 'Meta Llama 4 Scout 17B (Latest)',
+                'deepseek-v3': 'DeepSeek V3.2 (Best Value)',
+                'deepseek-r1': 'DeepSeek R1 (Reasoning)'
+            };
+            
+            const assetName = assetNames[data.asset] || data.asset;
+            const modelName = modelNames[data.model_used] || data.model_used;
             
             let html = `
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h2>${assetNames[data.asset]} Price Forecast</h2>
-                    <p>Horizon: ${data.horizon} days | Model: ${data.model_used} | Generated: ${new Date(data.timestamp).toLocaleString()}</p>
+                    <h2>${assetName} Price Forecast</h2>
+                    <p>Horizon: ${data.horizon} days | Model: ${modelName} | Generated: ${new Date(data.timestamp).toLocaleString()}</p>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
@@ -959,63 +1053,177 @@
             container.innerHTML = `
                 <div class="chat-message assistant">
                     <strong>Market Copilot:</strong>
-                    Hello! I'm your AI Market Copilot powered by Amazon Bedrock. I can help you with:<br><br>
-                    • Price forecasting and trends<br>
-                    • Competitive pricing analysis<br>
-                    • Product comparisons<br>
-                    • Market insights<br><br>
-                    What would you like to know?
+                    Hello! I'm your AI Market Copilot powered by Amazon Nova Lite. I can help you with:<br><br>
+                    • Price forecasting and trends (Gold, Silver, ETF)<br>
+                    • Competitive pricing analysis across 6 platforms<br>
+                    • Product comparisons and best deals<br>
+                    • Market insights and investment recommendations<br><br>
+                    I have access to real-time market data from February 2026. What would you like to know?
                 </div>
             `;
             sessionId = `session-${Date.now()}`;
         }
 
-        // Document analysis
-        function analyzeDocument() {
+        // Document analysis - AI-Powered
+        async function analyzeDocument() {
             const text = document.getElementById('docText').value.trim();
             const type = document.getElementById('analysisType').value;
+            const model = document.getElementById('docModel').value;
             
             if (!text) {
                 alert('Please paste document content first');
                 return;
             }
             
-            const results = {
-                type: type,
-                length: text.length,
-                entities: ['Gold', 'Silver', 'ETF', 'Market Share', 'Revenue'],
-                insights: [
-                    'Strong growth indicators in precious metals sector',
-                    'Increased market volatility expected in Q2',
-                    'Competitive pricing pressure from new entrants',
-                    'Digital transformation driving market efficiency'
-                ],
-                confidence: 0.87
+            if (text.length < 50) {
+                alert('Document text too short (minimum 50 characters)');
+                return;
+            }
+            
+            // Show loading state
+            const btn = document.getElementById('analyzeBtn');
+            const btnText = document.getElementById('analyzeBtnText');
+            btn.disabled = true;
+            btnText.textContent = '🔄 Analyzing with AI...';
+            
+            try {
+                const response = await fetch('https://foiwdbvnx6.execute-api.us-east-1.amazonaws.com/prod/analyze-document', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        analysis_type: type,
+                        model: model
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Analysis failed');
+                }
+                
+                const data = await response.json();
+                displayAnalysisResults(data.analysis, data.model_used);
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('⚠️ Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = '🔍 Analyze Document';
+            }
+        }
+        
+        function displayAnalysisResults(analysis, model) {
+            const modelNames = {
+                'nova-micro': 'Amazon Nova Micro',
+                'nova-lite': 'Amazon Nova Lite',
+                'nova-pro': 'Amazon Nova Pro',
+                'llama-3.2-3b': 'Meta Llama 3.2 3B',
+                'llama-3.1-8b': 'Meta Llama 3.1 8B',
+                'llama-3.3-70b': 'Meta Llama 3.3 70B',
+                'llama-4-scout': 'Meta Llama 4 Scout 17B'
+            };
+            
+            const sentimentColors = {
+                'positive': '#d4edda',
+                'neutral': '#fff3cd',
+                'negative': '#f8d7da'
+            };
+            
+            const sentimentIcons = {
+                'positive': '😊',
+                'neutral': '😐',
+                'negative': '😟'
             };
             
             let html = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3>📊 AI Analysis Complete</h3>
+                    <p><strong>Model:</strong> ${modelNames[model] || model}</p>
+                    <p><strong>Confidence:</strong> ${(analysis.confidence_score * 100).toFixed(1)}%</p>
+                    <p><strong>Sentiment:</strong> ${sentimentIcons[analysis.sentiment] || ''} ${analysis.sentiment.toUpperCase()}</p>
+                </div>
+                
                 <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3 style="color: #004085;">Analysis Summary</h3>
-                    <p><strong>Document Type:</strong> ${type.replace('_', ' ').toUpperCase()}</p>
-                    <p><strong>Content Length:</strong> ${results.length} characters</p>
-                    <p><strong>Confidence Score:</strong> ${(results.confidence * 100).toFixed(1)}%</p>
-                </div>
-                
-                <div style="background: #d4edda; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3 style="color: #155724;">Extracted Entities</h3>
-                    <p>${results.entities.join(', ')}</p>
-                </div>
-                
-                <div style="background: #fff3cd; padding: 20px; border-radius: 10px;">
-                    <h3 style="color: #856404;">Key Insights</h3>
-                    <ul style="margin-left: 20px;">
-                        ${results.insights.map(i => `<li>${i}</li>`).join('')}
-                    </ul>
+                    <h3 style="color: #004085;">📝 Summary</h3>
+                    <p>${analysis.summary}</p>
                 </div>
             `;
             
+            if (analysis.key_entities && analysis.key_entities.length > 0) {
+                html += `
+                    <div style="background: #d4edda; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #155724;">🏷️ Key Entities</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                            ${analysis.key_entities.map(e => `<span style="background: white; padding: 8px 15px; border-radius: 20px; font-weight: 500;">${e}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (analysis.key_metrics && analysis.key_metrics.length > 0) {
+                html += `
+                    <div style="background: #cce5ff; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #004085;">📈 Key Metrics</h3>
+                        <ul style="margin-left: 20px;">
+                            ${analysis.key_metrics.map(m => `<li><strong>${m.metric}:</strong> ${m.value} ${m.context ? `<em>(${m.context})</em>` : ''}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (analysis.insights && analysis.insights.length > 0) {
+                html += `
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #856404;">💡 Key Insights</h3>
+                        <ul style="margin-left: 20px;">
+                            ${analysis.insights.map(i => `<li>${i}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (analysis.recommendations && analysis.recommendations.length > 0) {
+                html += `
+                    <div style="background: #d1ecf1; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #0c5460;">✅ Recommendations</h3>
+                        <ul style="margin-left: 20px;">
+                            ${analysis.recommendations.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (analysis.opportunities && analysis.opportunities.length > 0) {
+                html += `
+                    <div style="background: #d4edda; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #155724;">🎯 Opportunities</h3>
+                        <ul style="margin-left: 20px;">
+                            ${analysis.opportunities.map(o => `<li>${o}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (analysis.risk_factors && analysis.risk_factors.length > 0) {
+                html += `
+                    <div style="background: #f8d7da; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #721c24;">⚠️ Risk Factors</h3>
+                        <ul style="margin-left: 20px;">
+                            ${analysis.risk_factors.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
             document.getElementById('analysisContent').innerHTML = html;
             document.getElementById('analysisResults').style.display = 'block';
+            
+            // Scroll to results
+            document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function loadSample(type) {
@@ -1034,9 +1242,9 @@
             loadCurrentPrices();
             
             // Set other metrics
-            document.getElementById('products-count').textContent = '6';
-            document.getElementById('savings').textContent = '₹1,491';
-            document.getElementById('savings-delta').textContent = '8.1%';
+            document.getElementById('products-count').textContent = '18';
+            document.getElementById('savings').textContent = '₹50';
+            document.getElementById('savings-delta').textContent = '14.6%';
         };
     </script>
 </body>

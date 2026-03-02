@@ -1,0 +1,119 @@
+[
+  {
+    "product_id": "P002",
+    "product_name": "Samsung Washing Machine 7kg",
+    "category": "home_appliances",
+    "prices": {
+      "Amazon": 22999,
+      "Flipkart": 24500,
+      "Zepto": 23500,
+      "Blinkit": 24200,
+      "BigBasket": 23800,
+      "Swiggy": 24000
+    }
+  },
+  {
+    "product_id": "P003",
+    "product_name": "LG Microwave 20L",
+    "category": "home_appliances",
+    "prices": {
+      "Amazon": 8999,
+      "Flipkart": 9200,
+      "Zepto": 8800,
+      "Blinkit": 8999,
+      "BigBasket": 9100,
+      "Swiggy": 9490
+    }
+  },
+  {
+    "product_id": "P004",
+    "product_name": "Whirlpool AC 1.5 Ton",
+    "category": "home_appliances",
+    "prices": {
+      "Amazon": 34990,
+      "Flipkart": 32999,
+      "Zepto": 35500,
+      "Blinkit": 34500,
+      "BigBasket": 33999,
+      "Swiggy": 35200
+    }
+  },
+  {
+    "product_id": "P005",
+    "product_name": "HP DeskJet Printer 2723",
+    "category": "electronics",
+    "prices": {
+      "Amazon": 4999,
+      "Flipkart": 5200,
+      "Zepto": 5100,
+      "Blinkit": 5050,
+      "BigBasket": 5150,
+      "Swiggy": 5300
+    }
+  },
+  {
+    "product_id": "P006",
+    "product_name": "Canon Pixma Printer G3000",
+    "category": "electronics",
+    "prices": {
+      "Amazon": 12999,
+      "Flipkart": 13500,
+      "Zepto": 13200,
+      "Blinkit": 13100,
+      "BigBasket": 13400,
+      "Swiggy": 13600
+    }
+  },
+  {
+    "product_id": "P007",
+    "product_name": "Figaro Olive Oil 1L",
+    "category": "groceries",
+    "prices": {
+      "Amazon": 899,
+      "Flipkart": 920,
+      "Zepto": 850,
+      "Blinkit": 870,
+      "BigBasket": 880,
+      "Swiggy": 890
+    }
+  },
+  {
+    "product_id": "P008",
+    "product_name": "Borges Extra Virgin Olive Oil 500ml",
+    "category": "groceries",
+    "prices": {
+      "Amazon": 599,
+      "Flipkart": 620,
+      "Zepto": 580,
+      "Blinkit": 590,
+      "BigBasket": 595,
+      "Swiggy": 610
+    }
+  },
+  {
+    "product_id": "P009",
+    "product_name": "Haier Refrigerator 195L",
+    "category": "home_appliances",
+    "prices": {
+      "Amazon": 16999,
+      "Flipkart": 17500,
+      "Zepto": 16500,
+      "Blinkit": 17200,
+      "BigBasket": 17000,
+      "Swiggy": 17400
+    }
+  },
+  {
+    "product_id": "P010",
+    "product_name": "Bosch Dishwasher 12 Place",
+    "category": "home_appliances",
+    "prices": {
+      "Amazon": 42999,
+      "Flipkart": 44500,
+      "Zepto": 43500,
+      "Blinkit": 43200,
+      "BigBasket": 43800,
+      "Swiggy": 44000
+    }
+  }
+]
