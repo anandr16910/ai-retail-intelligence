@@ -1,14 +1,53 @@
 """
 AWS Lambda Function: AI-Powered Document Analysis with Amazon Bedrock
+Includes document history storage in DynamoDB
 """
 import json
 import boto3
 from datetime import datetime
+import hashlib
+import uuid
 
-# Initialize AWS clients - we'll create region-specific clients as needed
-# Nova models work in us-east-1, Llama inference profiles work in us-west-2
+# Initialize AWS clients
 bedrock_east = boto3.client('bedrock-runtime', region_name='us-east-1')
 bedrock_west = boto3.client('bedrock-runtime', region_name='us-west-2')
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+
+# DynamoDB table for document history
+history_table = dynamodb.Table('DocumentAnalysisHistory')
+
+
+def save_to_history(document_id, text, analysis_type, model_choice, analysis_result, timestamp):
+    """Save document analysis to DynamoDB history"""
+    try:
+        # Create text hash for deduplication
+        text_hash = hashlib.sha256(text.encode()).hexdigest()
+        
+        # Prepare item for DynamoDB
+        item = {
+            'document_id': document_id,
+            'timestamp': timestamp,
+            'text_hash': text_hash,
+            'text_preview': text[:500],  # Store first 500 chars as preview
+            'full_text': text,  # Store full text
+            'analysis_type': analysis_type,
+            'model_used': model_choice,
+            'summary': analysis_result.get('summary', ''),
+            'key_entities': analysis_result.get('key_entities', []),
+            'insights': analysis_result.get('insights', []),
+            'sentiment': analysis_result.get('sentiment', 'neutral'),
+            'confidence_score': str(analysis_result.get('confidence_score', 0.0)),
+            'document_length': len(text),
+            'ttl': int(datetime.now().timestamp()) + (90 * 24 * 60 * 60)  # 90 days TTL
+        }
+        
+        # Save to DynamoDB
+        history_table.put_item(Item=item)
+        print(f"Saved document {document_id} to history")
+        
+    except Exception as e:
+        print(f"Error saving to history: {str(e)}")
+        raise
 
 
 def lambda_handler(event, context):
@@ -45,6 +84,17 @@ def lambda_handler(event, context):
         # Analyze document using Bedrock
         analysis_result = analyze_with_bedrock(text, analysis_type, model_id)
         
+        # Generate document ID
+        document_id = str(uuid.uuid4())
+        timestamp = datetime.now().isoformat()
+        
+        # Store in history
+        try:
+            save_to_history(document_id, text, analysis_type, model_choice, analysis_result, timestamp)
+        except Exception as e:
+            print(f"Warning: Failed to save history: {str(e)}")
+            # Continue even if history save fails
+        
         # Return response
         return {
             'statusCode': 200,
@@ -55,8 +105,9 @@ def lambda_handler(event, context):
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
             'body': json.dumps({
+                'document_id': document_id,
                 'analysis': analysis_result,
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': timestamp,
                 'model_used': model_choice,
                 'document_length': len(text)
             })

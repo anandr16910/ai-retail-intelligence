@@ -47,9 +47,8 @@ aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/bucket-po
 
 # Step 5: Upload dashboard files
 echo "📤 Uploading dashboard files..."
-aws s3 cp web_dashboard_full.html s3://$BUCKET_NAME/web_dashboard_full.html --content-type "text/html"
-aws s3 cp web_dashboard.html s3://$BUCKET_NAME/web_dashboard.html --content-type "text/html"
-aws s3 cp web_dashboard_full.html s3://$BUCKET_NAME/index.html --content-type "text/html"
+aws s3 cp ../../web_dashboard_full.html s3://$BUCKET_NAME/web_dashboard_full.html --content-type "text/html"
+aws s3 cp ../../web_dashboard_full.html s3://$BUCKET_NAME/index.html --content-type "text/html"
 
 # Step 6: Get website URL
 WEBSITE_URL="http://$BUCKET_NAME.s3-website-$REGION.amazonaws.com"
